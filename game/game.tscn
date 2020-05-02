@@ -27,4 +27,4 @@ __meta__ = {
 shape = SubResource( 1 )
 
 [node name="sync" parent="RigidBody2D" instance=ExtResource( 2 )]
-synced_properties = PoolStringArray( "position", "rotation", "linear_velocity", "angular_velocity" )
+synced_properties = PoolStringArray( "rotation", "linear_velocity", "angular_velocity" )
