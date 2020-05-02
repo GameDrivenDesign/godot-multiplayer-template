@@ -6,6 +6,11 @@ const speed = 10
 
 func _ready():
 	set_physics_process(true)
+	
+	# wait for a bit then kill the projectile
+	if is_network_master():
+		yield(get_tree().create_timer(2), "timeout")
+		rpc("kill")
 
 func _physics_process(delta):
 	position += direction * speed

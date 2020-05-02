@@ -7,10 +7,22 @@ const speed = 200
 
 func _ready():
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
-	add_to_group("players")
 	set_process(true)
 	randomize()
+	position = Vector2(rand_range(0, get_viewport_rect().size.x), rand_range(0, get_viewport_rect().size.y))
+	
+	# pick our color, even though this will be called on all clients, everyone
+	# else's random picks will be overriden by the first sync_state from the master
 	set_color(Color.from_hsv(randf(), 1, 1))
+
+func get_sync_state():
+	# place all synced properties in here
+	var properties = ['color']
+	
+	var state = {}
+	for p in properties:
+		state[p] = get(p)
+	return state
 
 func _process(dt):
 	if is_network_master():
@@ -25,31 +37,25 @@ func _process(dt):
 		if Input.is_action_just_pressed("ui_accept"):
 			rpc("spawn_box", position)
 		if Input.is_mouse_button_pressed(BUTTON_LEFT):
-			rpc("spawn_projectile", position, -(position - get_viewport().get_mouse_position()).normalized())
+			var direction = -(position - get_viewport().get_mouse_position()).normalized()
+			rpc("spawn_projectile", position, direction, Uuid.v4())
 
 func set_color(_color: Color):
 	color = _color
-	$player.modulate = color
+	$sprite.modulate = color
 
-func get_sync_state():
-	# place all synced properties in here
-	var properties = ['color']
-	
-	var state = {}
-	for p in properties:
-		state[p] = get(p)
-	return state
-
-remotesync func spawn_projectile(position, direction):
-	var projectile = preload("res://physics_projectile/physics_projectile.tscn").instance()
+remotesync func spawn_projectile(position, direction, name):
+	var projectile = preload("res://examples/physics_projectile/physics_projectile.tscn").instance()
 	projectile.set_network_master(1)
+	projectile.name = name
 	projectile.position = position
 	projectile.direction = direction
 	projectile.owned_by = self
 	get_parent().add_child(projectile)
+	return projectile
 
 remotesync func spawn_box(position):
-	var box = preload("res://block/block.tscn").instance()
+	var box = preload("res://examples/block/block.tscn").instance()
 	box.position = position
 	get_parent().add_child(box)
 

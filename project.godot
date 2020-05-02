@@ -24,6 +24,10 @@ config/name="multiplayer"
 run/main_scene="res://game/game.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+Uuid="*res://sync/uuid.gd"
+
 [physics]
 
 2d/default_gravity=0
