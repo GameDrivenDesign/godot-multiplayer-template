@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://game/game.gd" type="Script" id=1]
+[ext_resource path="res://sync/sync.tscn" type="PackedScene" id=2]
+[ext_resource path="res://sync/syncable_rigid_body.gd" type="Script" id=3]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 19.4735, 20.0481 )
+
+[node name="game" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+position = Vector2( 220.99, 136.671 )
+script = ExtResource( 3 )
+
+[node name="ColorRect" type="ColorRect" parent="RigidBody2D"]
+margin_left = -20.0
+margin_top = -20.0
+margin_right = 20.0
+margin_bottom = 20.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+shape = SubResource( 1 )
+
+[node name="sync" parent="RigidBody2D" instance=ExtResource( 2 )]
+synced_properties = PoolStringArray( "position", "rotation", "linear_velocity", "angular_velocity" )
