@@ -18,7 +18,7 @@ func _ready():
 		get_tree().connect("network_peer_connected", self, "server_player_connected")
 		get_tree().connect("network_peer_disconnected", self, "server_player_disconnected")
 		if not is_dedicated:
-			register_player(1, null, {})
+			register_player(1, {})
 	
 	get_tree().set_network_peer(peer)
 
@@ -31,19 +31,19 @@ func server_player_connected(player_id: int):
 		print("Connected ", player_id)
 		# get our new player informed about all the old players and objects
 		for old_player in get_tree().get_nodes_in_group("players"):
-			rpc_id(player_id, "register_player", old_player.id, old_player.position, old_player.get_sync_state())
+			rpc_id(player_id, "register_player", old_player.id, old_player.get_sync_state())
 		for node in get_tree().get_nodes_in_group("synced"):
-			rpc_id(player_id, "spawn_object", node.name, node.filename, node.position, node.get_node("sync").get_sync_state())
+			rpc_id(player_id, "spawn_object", node.name, node.filename, node.get_node("sync").get_sync_state())
 		
 		# inform all our players about the new player
-		var new_player = register_player(player_id, null, {})
-		rpc("register_player", player_id, new_player.position, new_player.get_sync_state())
+		var new_player = register_player(player_id, {})
+		rpc("register_player", player_id, new_player.get_sync_state())
 
 func server_player_disconnected(player_id: int):
 	print("Disconnected ", player_id)
 	rpc("unregister_player", player_id)
 
-remote func spawn_object(name: String, filename: String, position: Vector2, state: Dictionary):
+remote func spawn_object(name: String, filename: String, state: Dictionary):
 	# either create the object or just find the existing one
 	var object: Node2D = get_node_or_null(name)
 	if not object:
@@ -54,15 +54,14 @@ remote func spawn_object(name: String, filename: String, position: Vector2, stat
 	# rigid bodys need to be our syncable_rigid_body because you can't set the
 	# position or any other physics property outside of its own _integrate_forces
 	if object is RigidBody2D:
-		object.use_update(position, state)
+		object.use_update(state)
 	else:
-		object.position = position
 		for property in state:
 			object.set(property, state[property])
 	
 	return object
 
-remote func register_player(player_id: int, position, state: Dictionary):
+remote func register_player(player_id: int, state: Dictionary):
 	var player: Node2D = preload("res://player/player.tscn").instance()
 	player.id = player_id
 	player.set_network_master(player.id)
@@ -71,8 +70,6 @@ remote func register_player(player_id: int, position, state: Dictionary):
 	
 	add_child(player)
 	
-	if position:
-		player.position = position
 	for property in state:
 		player.set(property, state[property])
 	return player

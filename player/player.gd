@@ -17,7 +17,7 @@ func _ready():
 
 func get_sync_state():
 	# place all synced properties in here
-	var properties = ['color']
+	var properties = ['position', 'color']
 	
 	var state = {}
 	for p in properties:
