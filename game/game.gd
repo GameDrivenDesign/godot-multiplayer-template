@@ -33,7 +33,7 @@ func server_player_connected(player_id: int):
 		for old_player in get_tree().get_nodes_in_group("players"):
 			rpc_id(player_id, "register_player", old_player.id, old_player.get_sync_state())
 		for node in get_tree().get_nodes_in_group("synced"):
-			rpc_id(player_id, "spawn_object", node.name, node.filename, node.get_node("sync").get_sync_state())
+			rpc_id(player_id, "spawn_object", node.name, node.get_parent().get_path(), node.filename, node.get_node("sync").get_sync_state())
 		
 		# inform all our players about the new player
 		var new_player = register_player(player_id, {})
@@ -43,13 +43,16 @@ func server_player_disconnected(player_id: int):
 	print("Disconnected ", player_id)
 	rpc("unregister_player", player_id)
 
-remote func spawn_object(name: String, filename: String, state: Dictionary):
+remote func spawn_object(name: String, parent_path: NodePath, filename: String, state: Dictionary):
+	# The parent_node MUST exist before spawning the object
+	var parent: Node = get_node(parent_path)
+	
 	# either create the object or just find the existing one
-	var object: Node2D = get_node_or_null(name)
+	var object: Node2D = parent.get_node_or_null(name)
 	if not object:
 		object = load(filename).instance()
 		object.name = name
-		add_child(object)
+		parent.add_child(object)
 	
 	# rigid bodys need to be our syncable_rigid_body because you can't set the
 	# position or any other physics property outside of its own _integrate_forces
