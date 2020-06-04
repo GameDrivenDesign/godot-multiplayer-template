@@ -4,6 +4,7 @@ var port = 8877
 var ip = 'localhost'
 var max_players = 200
 var clients = []
+export var default_level: String = "res://level/level1.tscn"
 
 func _ready():
 	var peer = NetworkedMultiplayerENet.new()
@@ -30,9 +31,16 @@ func _ready():
 	get_tree().set_network_peer(peer)
 	
 	# this must happen after the network peer is set
-	if not is_dedicated and not is_client:
+	if not is_client:
+		if not is_dedicated:
 			register_client(1)
-			spawn_new_player(1)
+		switch_level(default_level)
+
+func switch_level(level_path: String):
+	$level.set_level(level_path)
+	
+	for client in clients:
+		spawn_new_player(client.id)
 
 func client_note_disconnected():
 	print("Server disconnected from player, exiting ...")
@@ -41,31 +49,36 @@ func client_note_disconnected():
 func register_client(id: int):
 	var client = preload("res://game/client.gd").new()
 	client.id = id
-	self.clients.append(client)
+	clients.append(client)
 
 func remove_client(id: int):
 	var index = 0
-	for client in self.clients:
+	for client in clients:
 		if client.id == id:
 			client.free()
-			self.clients.remove(index)
+			clients.remove(index)
 			return
 		else:
 			index += 1
+
+func spawn_object_for(client_id: int, object: Node):
+	rpc_id(client_id, "spawn_object", object.name, object.get_parent().get_path(), object.filename, object.get_node("sync").get_sync_state())
 
 func server_client_connected(id: int):
 	if id != 1:
 		print("Connected ", id)
 		register_client(id)
+		spawn_object_for(id, $level)
 		
 		# get our new player informed about all the old players and objects
 		for old_player in get_tree().get_nodes_in_group("players"):
 			rpc_id(id, "register_player", old_player.id, old_player.get_sync_state())
 		for node in get_tree().get_nodes_in_group("synced"):
-			rpc_id(id, "spawn_object", node.name, node.get_parent().get_path(), node.filename, node.get_node("sync").get_sync_state())
+			# Take care not to sync the level twice, otherwise the level gets loaded twice
+			if node != $level:
+				spawn_object_for(id, node)
 		
 		spawn_new_player(id)
-		print(clients)
 
 func spawn_new_player(id: int):
 	# inform all our players about the new player
@@ -105,11 +118,11 @@ remote func register_player(player_id: int, state: Dictionary):
 	player.name = String(player.id)
 	player.add_to_group("players")
 	
-	add_child(player)
+	$level.add_child(player)
 	
 	for property in state:
 		player.set(property, state[property])
 	return player
 
 remotesync func unregister_player(player_id: int):
-	remove_child(get_node(String(player_id)))
+	$level.remove_child($level.get_node(String(player_id)))
