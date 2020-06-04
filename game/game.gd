@@ -3,6 +3,7 @@ extends Node2D
 var port = 8877
 var ip = 'localhost'
 var max_players = 200
+var clients = []
 
 func _ready():
 	var peer = NetworkedMultiplayerENet.new()
@@ -19,37 +20,62 @@ func _ready():
 	
 	if is_client:
 		peer.create_client(ip, port)
-		get_tree().connect("server_disconnected", self, "client_note_disconnected")
+		assert(get_tree().connect("server_disconnected", self, "client_note_disconnected") == OK)
 	else:
 		print("Listening for connections on " + String(port) + " ...")
 		peer.create_server(port, max_players)
-		get_tree().connect("network_peer_connected", self, "server_player_connected")
-		get_tree().connect("network_peer_disconnected", self, "server_player_disconnected")
-		if not is_dedicated:
-			register_player(1, {})
+		assert(get_tree().connect("network_peer_connected", self, "server_client_connected") == OK)
+		assert(get_tree().connect("network_peer_disconnected", self, "server_client_disconnected") == OK)
 	
 	get_tree().set_network_peer(peer)
+	
+	# this must happen after the network peer is set
+	if not is_dedicated and not is_client:
+			register_client(1)
+			spawn_new_player(1)
 
 func client_note_disconnected():
 	print("Server disconnected from player, exiting ...")
 	get_tree().quit()
 
-func server_player_connected(player_id: int):
-	if player_id != 1:
-		print("Connected ", player_id)
+func register_client(id: int):
+	var client = preload("res://game/client.gd").new()
+	client.id = id
+	self.clients.append(client)
+
+func remove_client(id: int):
+	var index = 0
+	for client in self.clients:
+		if client.id == id:
+			client.free()
+			self.clients.remove(index)
+			return
+		else:
+			index += 1
+
+func server_client_connected(id: int):
+	if id != 1:
+		print("Connected ", id)
+		register_client(id)
+		
 		# get our new player informed about all the old players and objects
 		for old_player in get_tree().get_nodes_in_group("players"):
-			rpc_id(player_id, "register_player", old_player.id, old_player.get_sync_state())
+			rpc_id(id, "register_player", old_player.id, old_player.get_sync_state())
 		for node in get_tree().get_nodes_in_group("synced"):
-			rpc_id(player_id, "spawn_object", node.name, node.get_parent().get_path(), node.filename, node.get_node("sync").get_sync_state())
+			rpc_id(id, "spawn_object", node.name, node.get_parent().get_path(), node.filename, node.get_node("sync").get_sync_state())
 		
-		# inform all our players about the new player
-		var new_player = register_player(player_id, {})
-		rpc("register_player", player_id, new_player.get_sync_state())
+		spawn_new_player(id)
+		print(clients)
 
-func server_player_disconnected(player_id: int):
-	print("Disconnected ", player_id)
-	rpc("unregister_player", player_id)
+func spawn_new_player(id: int):
+	# inform all our players about the new player
+		var new_player = register_player(id, {})
+		rpc("register_player", id, new_player.get_sync_state())
+
+func server_client_disconnected(id: int):
+	print("Disconnected ", id)
+	rpc("unregister_player", id)
+	remove_client(id)
 
 remote func spawn_object(name: String, parent_path: NodePath, filename: String, state: Dictionary):
 	# The parent_node MUST exist before spawning the object

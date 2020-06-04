@@ -9,12 +9,18 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Object",
+"class": "Client",
+"language": "GDScript",
+"path": "res://game/client.gd"
+}, {
 "base": "KinematicBody2D",
 "class": "Player",
 "language": "GDScript",
 "path": "res://player/player.gd"
 } ]
 _global_script_class_icons={
+"Client": "",
 "Player": ""
 }
 

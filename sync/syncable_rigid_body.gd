@@ -20,9 +20,13 @@ func use_update(state: Dictionary):
 	reset_angular_velocity = state['angular_velocity']
 	reset_rotation = state['rotation']
 	
+	# warning-ignore:return_value_discarded
 	state.erase('position')
+	# warning-ignore:return_value_discarded
 	state.erase('lineary_velocity')
+	# warning-ignore:return_value_discarded
 	state.erase('angular_velocity')
+	# warning-ignore:return_value_discarded
 	state.erase('rotation')
 	
 	for property in state:
