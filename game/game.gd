@@ -9,6 +9,14 @@ func _ready():
 	var is_client = "--client" in OS.get_cmdline_args()
 	var is_dedicated = "--dedicated" in OS.get_cmdline_args()
 	
+	# Other arguments are in the style of "--arg=value"
+	for argument in OS.get_cmdline_args():
+		if argument.find("=") > -1:
+			var key_value = argument.split("=")
+			match key_value[0]:
+				'--ip': ip=key_value[1]
+				'--port': port=int(key_value[1])
+	
 	if is_client:
 		peer.create_client(ip, port)
 		get_tree().connect("server_disconnected", self, "client_note_disconnected")
