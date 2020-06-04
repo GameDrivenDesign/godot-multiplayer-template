@@ -42,6 +42,16 @@ func switch_level(level_path: String):
 	for client in clients:
 		spawn_new_player(client.id)
 
+func spawn_new_player(id: int):
+	# inform all our players about the new player
+		
+		var new_player = spawn_object(String(id), $level.get_path(), "res://player/player.tscn", {})
+		new_player.id = id
+		spawn_object_on_clients(new_player)
+
+func spawn_object_on_clients(object: Node):
+	rpc("spawn_object", object.name, object.get_parent().get_path(), object.filename, object.get_node("sync").get_sync_state())
+
 func client_note_disconnected():
 	print("Server disconnected from player, exiting ...")
 	get_tree().quit()
@@ -71,19 +81,12 @@ func server_client_connected(id: int):
 		spawn_object_for(id, $level)
 		
 		# get our new player informed about all the old players and objects
-		for old_player in get_tree().get_nodes_in_group("players"):
-			rpc_id(id, "register_player", old_player.id, old_player.get_sync_state())
 		for node in get_tree().get_nodes_in_group("synced"):
 			# Take care not to sync the level twice, otherwise the level gets loaded twice
 			if node != $level:
 				spawn_object_for(id, node)
 		
 		spawn_new_player(id)
-
-func spawn_new_player(id: int):
-	# inform all our players about the new player
-		var new_player = register_player(id, {})
-		rpc("register_player", id, new_player.get_sync_state())
 
 func server_client_disconnected(id: int):
 	print("Disconnected ", id)
@@ -110,19 +113,6 @@ remote func spawn_object(name: String, parent_path: NodePath, filename: String, 
 			object.set(property, state[property])
 	
 	return object
-
-remote func register_player(player_id: int, state: Dictionary):
-	var player: Node2D = preload("res://player/player.tscn").instance()
-	player.id = player_id
-	player.set_network_master(player.id)
-	player.name = String(player.id)
-	player.add_to_group("players")
-	
-	$level.add_child(player)
-	
-	for property in state:
-		player.set(property, state[property])
-	return player
 
 remotesync func unregister_player(player_id: int):
 	$level.remove_child($level.get_node(String(player_id)))
