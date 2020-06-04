@@ -35,8 +35,7 @@ func _process(dt):
 		if Input.is_action_pressed("ui_right"):
 			rset("position", position + Vector2(speed * dt, 0))
 		if Input.is_action_just_pressed("ui_accept"):
-			# rpc("spawn_box", position)
-			get_tree().get_root().find_node("game", true, false).switch_level("res://level/level1.tscn")
+			rpc("spawn_box", position)
 		if Input.is_mouse_button_pressed(BUTTON_LEFT):
 			var direction = -(position - get_viewport().get_mouse_position()).normalized()
 			rpc("spawn_projectile", position, direction, Uuid.v4())
