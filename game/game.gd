@@ -48,14 +48,17 @@ func spawn_new_player(id: int):
 	new_player.id = id
 	spawn_object_on_clients(new_player)
 
-func spawn_object_on_clients(object: Node):
+func sync_state_for(object: Node):
 	var sync_node = object.get_node_or_null("sync")
 	var sync_state = {}
 	if sync_node == null:
 		push_error("Trying to remotely spawn object '%s', which doesn't have a 'sync' node!" % object.name)
 	else:
 		sync_state = sync_node.get_sync_state()
-	rpc("spawn_object", object.name, object.get_parent().get_path(), object.filename, sync_state)
+	return sync_state
+
+func spawn_object_on_clients(object: Node):
+	rpc("spawn_object", object.name, object.get_parent().get_path(), object.filename, sync_state_for(object))
 
 func client_note_disconnected():
 	print("Server disconnected from player, exiting ...")
@@ -77,7 +80,7 @@ func remove_client(id: int):
 			index += 1
 
 func spawn_object_for(client_id: int, object: Node):
-	rpc_id(client_id, "spawn_object", object.name, object.get_parent().get_path(), object.filename, object.get_node("sync").get_sync_state())
+	rpc_id(client_id, "spawn_object", object.name, object.get_parent().get_path(), object.filename, sync_state_for(object))
 
 func server_client_connected(id: int):
 	if id != 1:
