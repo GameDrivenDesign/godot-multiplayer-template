@@ -44,13 +44,18 @@ func switch_level(level_path: String):
 
 func spawn_new_player(id: int):
 	# inform all our players about the new player
-		
-		var new_player = spawn_object(String(id), $level.get_path(), "res://player/player.tscn", {})
-		new_player.id = id
-		spawn_object_on_clients(new_player)
+	var new_player = spawn_object(String(id), $level.get_path(), "res://player/player.tscn", {})
+	new_player.id = id
+	spawn_object_on_clients(new_player)
 
 func spawn_object_on_clients(object: Node):
-	rpc("spawn_object", object.name, object.get_parent().get_path(), object.filename, object.get_node("sync").get_sync_state())
+	var sync_node = object.get_node_or_null("sync")
+	var sync_state = {}
+	if sync_node == null:
+		push_error("Trying to remotely spawn object '%s', which doesn't have a 'sync' node!" % object.name)
+	else:
+		sync_state = sync_node.get_sync_state()
+	rpc("spawn_object", object.name, object.get_parent().get_path(), object.filename, sync_state)
 
 func client_note_disconnected():
 	print("Server disconnected from player, exiting ...")
