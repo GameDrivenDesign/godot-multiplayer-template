@@ -1,6 +1,6 @@
 extends Node
 
-export (PoolStringArray) var synced_properties
+export (PoolStringArray) var synced_properties = ['position']
 
 func _ready():
 	get_parent().add_to_group("synced")

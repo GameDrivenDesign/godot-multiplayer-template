@@ -9,7 +9,7 @@ static func getRandomInt(max_value):
 static func randomBytes(n):
 	var r = []
 
-	for index in range(0, n):
+	for _index in range(0, n):
 		r.append(getRandomInt(256))
 
 	return r

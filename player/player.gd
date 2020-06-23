@@ -1,11 +1,13 @@
 extends KinematicBody2D
 class_name Player
 
-var id
+var id: int setget set_id
 var color: Color setget set_color
 const speed = 200
 
 func _ready():
+	add_to_group("players")
+	
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
 	set_process(true)
 	randomize()
@@ -14,15 +16,6 @@ func _ready():
 	# pick our color, even though this will be called on all clients, everyone
 	# else's random picks will be overriden by the first sync_state from the master
 	set_color(Color.from_hsv(randf(), 1, 1))
-
-func get_sync_state():
-	# place all synced properties in here
-	var properties = ['color']
-	
-	var state = {}
-	for p in properties:
-		state[p] = get(p)
-	return state
 
 func _process(dt):
 	if is_network_master():
@@ -43,6 +36,10 @@ func _process(dt):
 func set_color(_color: Color):
 	color = _color
 	$sprite.modulate = color
+
+func set_id(new_id: int):
+	set_network_master(new_id)
+	id = new_id
 
 remotesync func spawn_projectile(position, direction, name):
 	var projectile = preload("res://examples/physics_projectile/physics_projectile.tscn").instance()

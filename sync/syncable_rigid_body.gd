@@ -13,9 +13,21 @@ func _integrate_forces(state: Physics2DDirectBodyState):
 		state.linear_velocity = reset_linear_velocity
 		state.angular_velocity = reset_angular_velocity
 
-func use_update(position: Vector2, state: Dictionary):
+func use_update(state: Dictionary):
 	reset = true
-	reset_position = position
+	reset_position = state['position']
 	reset_linear_velocity = state['linear_velocity']
 	reset_angular_velocity = state['angular_velocity']
 	reset_rotation = state['rotation']
+	
+	# warning-ignore:return_value_discarded
+	state.erase('position')
+	# warning-ignore:return_value_discarded
+	state.erase('lineary_velocity')
+	# warning-ignore:return_value_discarded
+	state.erase('angular_velocity')
+	# warning-ignore:return_value_discarded
+	state.erase('rotation')
+	
+	for property in state:
+		self.set(property, state[property])
