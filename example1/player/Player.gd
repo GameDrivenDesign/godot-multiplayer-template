@@ -35,14 +35,14 @@ func _process(dt):
 
 func set_color(_color: Color):
 	color = _color
-	$sprite.modulate = color
+	$Sprite.modulate = color
 
 func set_id(new_id: int):
 	set_network_master(new_id)
 	id = new_id
 
 remotesync func spawn_projectile(position, direction, name):
-	var projectile = preload("res://examples/physics_projectile/physics_projectile.tscn").instance()
+	var projectile = preload("res://example1/physics_projectile/PhysicsProjectile.tscn").instance()
 	projectile.set_network_master(1)
 	projectile.name = name
 	projectile.position = position
@@ -52,7 +52,7 @@ remotesync func spawn_projectile(position, direction, name):
 	return projectile
 
 remotesync func spawn_box(position):
-	var box = preload("res://examples/block/block.tscn").instance()
+	var box = preload("res://example1/Block.tscn").instance()
 	box.position = position
 	get_parent().add_child(box)
 

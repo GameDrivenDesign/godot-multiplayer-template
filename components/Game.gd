@@ -1,10 +1,11 @@
 extends Node2D
 
-var port = 8877
-var ip = 'localhost'
-var max_players = 200
+export var port = 8877
+export var ip = 'localhost'
+export var max_players = 200
+export(String, FILE, "*.tscn") var default_level = ""
+
 var clients = []
-export var default_level: String = "res://level/level1.tscn"
 
 func _ready():
 	var peer = NetworkedMultiplayerENet.new()
@@ -20,11 +21,11 @@ func _ready():
 				'--port': port=int(key_value[1])
 	
 	if is_client:
-		peer.create_client(ip, port)
+		assert(peer.create_client(ip, port) == OK)
 		assert(get_tree().connect("server_disconnected", self, "client_note_disconnected") == OK)
 	else:
 		print("Listening for connections on " + String(port) + " ...")
-		peer.create_server(port, max_players)
+		assert(peer.create_server(port, max_players) == OK)
 		assert(get_tree().connect("network_peer_connected", self, "server_client_connected") == OK)
 		assert(get_tree().connect("network_peer_disconnected", self, "server_client_disconnected") == OK)
 	
@@ -37,22 +38,22 @@ func _ready():
 		switch_level(default_level)
 
 func switch_level(level_path: String):
-	$level.set_level(level_path)
-	
+	$Level.set_level(level_path)
+
 	for client in clients:
 		spawn_new_player(client.id)
 
 func spawn_new_player(id: int):
 	# inform all our players about the new player
-	var new_player = spawn_object(String(id), $level.get_path(), "res://player/player.tscn", {})
+	var new_player = spawn_object(String(id), $Level.get_path(), "res://example1/player/Player.tscn", {})
 	new_player.id = id
 	spawn_object_on_clients(new_player)
 
 func sync_state_for(object: Node):
-	var sync_node = object.get_node_or_null("sync")
+	var sync_node = object.get_node_or_null("Sync")
 	var sync_state = {}
 	if sync_node == null:
-		push_error("Trying to remotely spawn object '%s', which doesn't have a 'sync' node!" % object.name)
+		push_error("Trying to remotely spawn object '%s', which doesn't have a 'Sync' node!" % object.name)
 	else:
 		sync_state = sync_node.get_sync_state()
 	return sync_state
@@ -65,7 +66,7 @@ func client_note_disconnected():
 	get_tree().quit()
 
 func register_client(id: int):
-	var client = preload("res://game/client.gd").new()
+	var client = preload("res://components/Client.gd").new()
 	client.id = id
 	clients.append(client)
 
@@ -86,12 +87,12 @@ func server_client_connected(id: int):
 	if id != 1:
 		print("Connected ", id)
 		register_client(id)
-		spawn_object_for(id, $level)
+		spawn_object_for(id, $Level)
 		
 		# get our new player informed about all the old players and objects
 		for node in get_tree().get_nodes_in_group("synced"):
 			# Take care not to sync the level twice, otherwise the level gets loaded twice
-			if node != $level:
+			if node != $Level:
 				spawn_object_for(id, node)
 		
 		spawn_new_player(id)
@@ -123,4 +124,4 @@ remote func spawn_object(name: String, parent_path: NodePath, filename: String, 
 	return object
 
 remotesync func unregister_player(player_id: int):
-	$level.remove_child($level.get_node(String(player_id)))
+	$Level.remove_child($Level.get_node(String(player_id)))

@@ -11,7 +11,7 @@ func _on_player_body_entered(body):
 
 func _process(delta):
 	if Input.is_mouse_button_pressed(BUTTON_LEFT):
-		var ProjectileClass = preload("res://examples/godot_tutorial/projectile.tscn")
+		var ProjectileClass = preload("res://example2/projectile.tscn")
 		var projectile = ProjectileClass.instance()
 		projectile.position = position
 		projectile.direction = (get_viewport().get_mouse_position() - position).normalized()
