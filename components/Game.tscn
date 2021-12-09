@@ -5,6 +5,7 @@
 
 [node name="Game" type="Node2D"]
 script = ExtResource( 1 )
-default_level = "res://example1/PongExample.tscn"
+default_level = "res://example2/ShooterExample.tscn"
+player_scene = "res://example2/Player.tscn"
 
 [node name="Level" parent="." instance=ExtResource( 2 )]

@@ -4,6 +4,7 @@ export var port = 8877
 export var ip = 'localhost'
 export var max_players = 200
 export(String, FILE, "*.tscn") var default_level = ""
+export(String, FILE, "*.tscn") var player_scene = ""
 
 var clients = []
 
@@ -45,7 +46,7 @@ func switch_level(level_path: String):
 
 func spawn_new_player(id: int):
 	# inform all our players about the new player
-	var new_player = spawn_object(String(id), $Level.get_path(), "res://example1/player/Player.tscn", {})
+	var new_player = spawn_object(String(id), $Level.get_path(), player_scene, {})
 	new_player.id = id
 	spawn_object_on_clients(new_player)
 
