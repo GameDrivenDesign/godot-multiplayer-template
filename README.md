@@ -28,6 +28,9 @@ E.g. starting my game on Linux
 Make `components/Game.tscn` the main node at your game. You will need provide a `default level` and a `player scene`.
 The `player scene` will be instantiated, whenever a new client connects to the game. This scene should inherit from the `Player` class.
 
+Scripts inheriting the `Player` class, must implement `_on_ready()`, `_on_physics_process()` and `_on_process()` and use these instead of their counterparts (`_ready()` etc.).
+When you want to e.g. process input from the player, make sure to make it conditional on `is_network_master()`. As each player is their own network master, this will make sure that the input is processed only for the player of this Godot instance, rather than all players.
+
 You can also configure the IP address, the port, the maximum number of players in the inspector. By default the game will run on `localhost:8877` and allow for up to 200 players. Both can be overridden by command line arguments.
 
 Each object, that should be synced among the clients, needs a `Sync` node, found in `sync/sync.tscn`.
