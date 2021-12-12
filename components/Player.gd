@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends Node
 class_name Player
 
 var id: int setget set_id

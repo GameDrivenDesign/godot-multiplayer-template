@@ -11,7 +11,7 @@ func _process(_delta):
 	if Input.is_action_pressed("ui_accept"):
 		var players = get_tree().get_nodes_in_group("players")
 		var spawn_position = Vector2(rand_range(100, 1000), rand_range(100, 700))
-		var target_id = players[randi() % players.size()].id
+		var target_id = players[randi() % players.size()].get_network_master()
 		rpc("spawn_enemy", spawn_position, target_id)
 
 remotesync func spawn_enemy(spawn_position, target_id):

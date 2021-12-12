@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="CubeMesh" id=1]
+
+[sub_resource type="PlaneMesh" id=2]
+size = Vector2( 30, 30 )
+
+[node name="3DLevel" type="Spatial"]
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.47738, 1.03922, -1.96838 )
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="MeshInstance2" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.56786, 1.08365, 1.52372 )
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="DirectionalLight" type="DirectionalLight" parent="MeshInstance2"]
+transform = Transform( 0.958235, 0.207459, -0.196844, 0.0770695, 0.475511, 0.876328, 0.275403, -0.854898, 0.439662, 0, 4.96147, -2.38419e-07 )
+shadow_enabled = true
+shadow_bias = 0.01
+shadow_contact = 0.287
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.984841, 0.173459, 0, -0.173459, 0.984841, 0.925714, 3.65734, 8.36975 )
+current = true
+
+[node name="MeshInstance3" type="MeshInstance" parent="."]
+mesh = SubResource( 2 )
+material/0 = null

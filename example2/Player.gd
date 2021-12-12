@@ -1,4 +1,4 @@
-extends Player
+extends KinematicBody2D
 
 signal health_changed(percentage)
 var health = 1.0

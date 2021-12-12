@@ -1,4 +1,4 @@
-extends Player
+extends KinematicBody2D
 
 const speed = 200
 var color: Color setget set_color
@@ -10,7 +10,6 @@ func _ready():
 	set_process(true)
 	randomize()
 	position = Vector2(rand_range(0, get_viewport_rect().size.x), rand_range(0, get_viewport_rect().size.y))
-	print("READY")
 	# pick our color, even though this will be called on all clients, everyone
 	# else's random picks will be overriden by the first sync_state from the master
 	set_color(Color.from_hsv(randf(), 1, 1))

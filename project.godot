@@ -14,7 +14,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://components/Client.gd"
 }, {
-"base": "KinematicBody2D",
+"base": "Node",
 "class": "Player",
 "language": "GDScript",
 "path": "res://components/Player.gd"
@@ -27,12 +27,16 @@ _global_script_class_icons={
 [application]
 
 config/name="MultiplayerTemplate"
-run/main_scene="res://example2/Game.tscn"
+run/main_scene="res://Launcher.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
 Uuid="*res://sync/uuid.gd"
+
+[global]
+
+main=false
 
 [physics]
 

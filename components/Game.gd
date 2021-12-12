@@ -1,4 +1,4 @@
-extends Node2D
+extends Node
 
 export var port = 8877
 export var ip = 'localhost'
@@ -12,6 +12,10 @@ func _ready():
 	var peer = NetworkedMultiplayerENet.new()
 	var is_client = "--client" in OS.get_cmdline_args()
 	var is_dedicated = "--dedicated" in OS.get_cmdline_args()
+	
+	var level_container = preload("res://components/LoadScene.tscn").instance()
+	level_container.name = "Level"
+	add_child(level_container)
 	
 	# Other arguments are in the style of "--arg=value"
 	for argument in OS.get_cmdline_args():
@@ -40,14 +44,14 @@ func _ready():
 
 func switch_level(level_path: String):
 	$Level.set_level(level_path)
-
+	
 	for client in clients:
 		spawn_new_player(client.id)
 
 func spawn_new_player(id: int):
 	# inform all our players about the new player
 	var new_player = spawn_object(String(id), $Level.get_path(), player_scene, {})
-	new_player.id = id
+	new_player.set_network_master(id)
 	spawn_object_on_clients(new_player)
 
 func sync_state_for(object: Node):
@@ -84,19 +88,19 @@ func remove_client(id: int):
 func spawn_object_for(client_id: int, object: Node):
 	rpc_id(client_id, "spawn_object", object.name, object.get_parent().get_path(), object.filename, sync_state_for(object))
 
-func server_client_connected(id: int):
-	if id != 1:
-		print("Connected ", id)
-		register_client(id)
-		spawn_object_for(id, $Level)
+func server_client_connected(new_id: int):
+	if new_id != 1:
+		print("Connected ", new_id)
+		register_client(new_id)
+		spawn_object_for(new_id, $Level)
 		
 		# get our new player informed about all the old players and objects
 		for node in get_tree().get_nodes_in_group("synced"):
 			# Take care not to sync the level twice, otherwise the level gets loaded twice
 			if node != $Level:
-				spawn_object_for(id, node)
+				spawn_object_for(new_id, node)
 		
-		spawn_new_player(id)
+		spawn_new_player(new_id)
 
 func server_client_disconnected(id: int):
 	print("Disconnected ", id)
@@ -108,7 +112,7 @@ remote func spawn_object(name: String, parent_path: NodePath, filename: String, 
 	var parent: Node = get_node(parent_path)
 	
 	# either create the object or just find the existing one
-	var object: Node2D = parent.get_node_or_null(name)
+	var object: Node = parent.get_node_or_null(name)
 	if not object:
 		object = load(filename).instance()
 		object.name = name
@@ -120,7 +124,10 @@ remote func spawn_object(name: String, parent_path: NodePath, filename: String, 
 		object.use_update(state)
 	else:
 		for property in state:
-			object.set(property, state[property])
+			if property == '__network_master_id':
+				object.set_network_master(state[property])
+			else:
+				object.set(property, state[property])
 	
 	return object
 
