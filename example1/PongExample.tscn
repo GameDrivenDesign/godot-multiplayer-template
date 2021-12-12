@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://example1/PhysicsBlock.tscn" type="PackedScene" id=1]
+
+[node name="Example" type="Node2D"]
+
+[node name="PhysicsBlock" parent="." instance=ExtResource( 1 )]
+position = Vector2( 287, 165 )
+
+[node name="PhysicsBlock2" parent="." instance=ExtResource( 1 )]
+position = Vector2( 863, 224 )
+
+[node name="PhysicsBlock3" parent="." instance=ExtResource( 1 )]
+position = Vector2( 183, 437 )
+
+[node name="PhysicsBlock4" parent="." instance=ExtResource( 1 )]
+position = Vector2( 702, 490 )

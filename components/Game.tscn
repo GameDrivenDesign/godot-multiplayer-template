@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://components/Game.gd" type="Script" id=1]
+[ext_resource path="res://components/LoadScene.tscn" type="PackedScene" id=2]
+
+[node name="Game" type="Node2D"]
+script = ExtResource( 1 )
+default_level = "res://example1/PongExample.tscn"
+player_scene = "res://example1/player/Player.tscn"
+
+[node name="Level" parent="." instance=ExtResource( 2 )]

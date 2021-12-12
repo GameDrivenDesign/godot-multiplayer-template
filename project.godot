@@ -12,12 +12,12 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "Client",
 "language": "GDScript",
-"path": "res://game/client.gd"
+"path": "res://components/Client.gd"
 }, {
 "base": "KinematicBody2D",
 "class": "Player",
 "language": "GDScript",
-"path": "res://player/player.gd"
+"path": "res://components/Player.gd"
 } ]
 _global_script_class_icons={
 "Client": "",
@@ -26,8 +26,8 @@ _global_script_class_icons={
 
 [application]
 
-config/name="multiplayer"
-run/main_scene="res://game/game.tscn"
+config/name="MultiplayerTemplate"
+run/main_scene="res://components/Game.tscn"
 config/icon="res://icon.png"
 
 [autoload]
