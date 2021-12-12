@@ -35,13 +35,6 @@ In the following, typical concerns of a multiplayer game are described.
 * Create a player scene.
 * Open `Launcher.tscn` and set the level and player scene files in the Launcher's configuration. The Launcher scene will be started as the game's main scene and will then place your selected level inside itself.
 
-### Syncing on game start
-Each object, that should be synced among the clients, needs a `Sync` node, found in `sync/sync.tscn`.
-For example, to ensure that all objects are in the same position on game start, add the `position` property to the `synced_properties` list (if you're building a 3d game, use `transform` instead).
-
-`Sync` will ensure that the object appears on newly connected clients in the same state.
-After connection, you are responsible for keeping things synchronized.
-
 ### Synchronizing
 
 **Summary of the below**: if the property you want to synchronize...
@@ -52,10 +45,20 @@ After connection, you are responsible for keeping things synchronized.
 	2. use `rset_config` to enable live synchronization
 	3. use `rset` to change the property.
 
-**Details and Examples**
+**Syncing on game start**
 
-To synchronize a property of a node throughout the game, call `rset_config("propname", MultiplayerAPI.RPC_MODE_REMOTESYNC)` and use `rset("propname", value)` to set the property.
-If you use a function that applies the change, set the config to `RPC_MODE_REMOTE` (this way only the other people will also hear of it) and set the property again:
+Each object, that should be synced among the clients, needs a `Sync` node, found in `sync/sync.tscn`.
+For example, to ensure that all objects are in the same position on game start, add the `position` property to the `synced_properties` list of `Sync` (if you're building a 3d game, use `transform` instead).
+
+`Sync` will ensure that the object appears on newly connected clients in the same state.
+After connection, you are responsible for keeping things synchronized, as described below.
+
+**Synching throughout the game**
+
+To synchronize a property of a node throughout the game, first make sure that it is part of the `synced_properties`.
+There are two cases to be distinguished.
+
+First, if a utility function such as `move_and_slide` changes the property of interest, use `rset_config()` with `RPC_MODE_REMOTE` (which then applies the change only on the remotes, not on your machine where it already happened) as shown below:
 ```
 func _ready():
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTE)
@@ -69,7 +72,7 @@ func _process(delta):
 		rset("position", position)
 ```
 
-Otherwise, if you change the property directly, use `MultiplayerAPI.RPC_MODE_REMOTESYNC` (which applies the change on both your machine and the remotes):
+Second, if you change the property directly, use `MultiplayerAPI.RPC_MODE_REMOTESYNC` (which applies the change on both your machine and the remotes):
 ```
 func _ready():
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
