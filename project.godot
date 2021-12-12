@@ -27,7 +27,7 @@ _global_script_class_icons={
 [application]
 
 config/name="MultiplayerTemplate"
-run/main_scene="res://components/Game.tscn"
+run/main_scene="res://example2/Game.tscn"
 config/icon="res://icon.png"
 
 [autoload]

@@ -4,21 +4,18 @@ signal health_changed(percentage)
 var health = 1.0
 const speed = 200
 
-func _on_ready():
+func _ready():
 	add_to_group("players")
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
 	position = Vector2(rand_range(0, get_viewport_rect().size.x), rand_range(0, get_viewport_rect().size.y))
 	assert(connect("health_changed", $"../Game", "update_health") == OK)
-
-func _on_physics_process(_delta):
-	pass
 
 func take_damage():
 	if is_network_master():
 		health -= 0.04
 		emit_signal("health_changed", health)
 
-func _on_process(delta):
+func _process(delta):
 	if is_network_master():
 		if Input.is_action_pressed("ui_up"):
 			rset("position", position + Vector2(0, -speed * delta))
@@ -28,7 +25,7 @@ func _on_process(delta):
 			rset("position", position + Vector2(-speed * delta, 0))
 		if Input.is_action_pressed("ui_right"):
 			rset("position", position + Vector2(speed * delta, 0))
-	
+
 		if Input.is_mouse_button_pressed(BUTTON_LEFT):
 			var direction = (get_viewport().get_mouse_position() - position).normalized()
 			rpc("spawn_projectile", position, direction)
