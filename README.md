@@ -35,54 +35,16 @@ In the following, typical concerns of a multiplayer game are described.
 * Create a player scene.
 * Open `Launcher.tscn` and set the level and player scene files in the Launcher's configuration. The Launcher scene will be started as the game's main scene and will then place your selected level inside itself.
 
-### Synchronizing
+### Synchronize a property
+1. Set the property on the network master.
+2. In the object's `Sync.tscn`, add the property to synced or `unreliable_synced` for faster but potentially dropped updates.
 
-**Summary of the below**: if the property you want to synchronize...
-* ...is the same for all players: you don't need to do anything.
-* ...is only changed at game start, but is different for each player: you only need to add it to the `synced_properties` list.
-* ...changes throughout the game:
-	1. add it to the `synced_properties` list
-	2. use `rset_config` to enable live synchronization
-	3. use `rset` to change the property.
+### Initialize a property with randomness
+1. Create a `_network_ready(is_server)` func.
+2. if `is_server`, decide set the property.
+3. if not `is_server`, you will have access to the same value that was decided on the server
 
-**Syncing on game start**
-
-Each object, that should be synced among the clients, needs a `Sync` node, found in `sync/sync.tscn`.
-For example, to ensure that all objects are in the same position on game start, add the `position` property to the `synced_properties` list of `Sync` (if you're building a 3d game, use `transform` instead).
-
-`Sync` will ensure that the object appears on newly connected clients in the same state.
-After connection, you are responsible for keeping things synchronized, as described below.
-
-**Synching throughout the game**
-
-To synchronize a property of a node throughout the game, first make sure that it is part of the `synced_properties`.
-There are two cases to be distinguished.
-
-First, if a utility function such as `move_and_slide` changes the property of interest, use `rset_config()` with `RPC_MODE_REMOTE` (which then applies the change only on the remotes, not on your machine where it already happened) as shown below:
-```
-func _ready():
-	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTE)
-
-func _process(delta):
-	# we're only doing this on the client that owns this player
-	if is_network_master():
-		# changes our position on our client but isn't synchronized
-		move_and_slide(Vector2(20 * delta, 0))
-		# now we're synchronizing it with everyone else! (because of RPC_MODE_REMOTE)
-		rset("position", position)
-```
-
-Second, if you change the property directly, use `MultiplayerAPI.RPC_MODE_REMOTESYNC` (which applies the change on both your machine and the remotes):
-```
-func _ready():
-	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
-
-func _process(delta):
-	# we're only doing this on the client that owns this player
-	if is_network_master():
-		# change our position and let us and everyone else apply it (because of RPC_MODE_REMOTESYNC)
-		rset("position", position + Vector2(20 * delta, 0))
-```
+### Call a function on all devices
 
 To call a function on all devices, use `rpc("funcname", arg1)`.
 Put either `remote` or `remotesync` in front of the function name to let Godot know who should get the call.
@@ -96,6 +58,28 @@ remotesync func spawn_projectile(position, velocity):
 	p.position = position
 	p.velocity = velocity
 	get_parent().add_child(p)
+```
+
+### Pattern: Use setters to synchronize derived state
+* To ensure that synchronizing a single property has the desired effects, create a setter that receives the new value and applies all changes.
+
+### Pattern: Updating Properties and Calling Remote Procedures
+* Use Sync.tscn to sync properties and `rpc()` to call procedures on all clients
+* Make sure that these are **only ever called on a single** instance by using `is_network_master`.
+
+### Pattern: Spawning entities on all instances
+* Godot identifies nodes by name. By default, is increments a counter that is added to the default scene name on each client, which can get out of sync when many entities of the same scene spawn quickly.
+* To make sure the name is always the same on all clients, use a UUID:
+```
+func ...():
+	...
+	rpc("spawn_enemy", spawn_position, Uuid.v4())
+
+remotesync func spawn_enemy(spawn_position, name):
+	var enemy = preload("res://example2/Enemy.tscn").instance()
+	enemy.name = name
+	enemy.position = spawn_position
+	add_child(enemy)
 ```
 
 ### Physics & RigidBodies
@@ -126,3 +110,38 @@ Move around using the arrow keys, hold the mouse to shoot projectiles. Pressing 
 Set `res://example3/3DLevel.tscn` as the main scene, and `res://example3/Player.tscn` as player and launch the game.
 
 Players will simply choose a random color for themselves and move to the right of the screen.
+
+
+
+
+## Advanced Usage of Godot Synchronization
+
+**Synching throughout the game**
+
+There are two cases to be distinguished.
+
+First, if a utility function such as `move_and_slide` changes the property of interest, use `rset_config()` with `RPC_MODE_REMOTE` (which then applies the change only on the remotes, not on your machine where it already happened) as shown below:
+```
+func _ready():
+	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTE)
+
+func _process(delta):
+	# we're only doing this on the client that owns this player
+	if is_network_master():
+		# changes our position on our client but isn't synchronized
+		move_and_slide(Vector2(20 * delta, 0))
+		# now we're synchronizing it with everyone else! (because of RPC_MODE_REMOTE)
+		rset("position", position)
+```
+
+Second, if you change the property directly, use `MultiplayerAPI.RPC_MODE_REMOTESYNC` (which applies the change on both your machine and the remotes):
+```
+func _ready():
+	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
+
+func _process(delta):
+	# we're only doing this on the client that owns this player
+	if is_network_master():
+		# change our position and let us and everyone else apply it (because of RPC_MODE_REMOTESYNC)
+		rset("position", position + Vector2(20 * delta, 0))
+```

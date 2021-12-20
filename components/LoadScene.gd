@@ -16,6 +16,6 @@ func _set_level_path(new_path: String):
 		if child.name != 'Sync':
 			self.remove_child(child)
 			child.queue_free()
-		
+	
 	var new_level = load(new_path).instance()
 	add_child(new_level)

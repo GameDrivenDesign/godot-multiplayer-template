@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://example3/3DPlayer.gd" type="Script" id=1]
-[ext_resource path="res://sync/Sync.tscn" type="PackedScene" id=2]
+[ext_resource path="res://components/sync/Sync.tscn" type="PackedScene" id=2]
 
 [sub_resource type="SpatialMaterial" id=2]
 albedo_color = Color( 0.768627, 0.027451, 0.027451, 1 )
@@ -19,7 +19,8 @@ height = 1.19701
 script = ExtResource( 1 )
 
 [node name="Sync" parent="." instance=ExtResource( 2 )]
-synced_properties = PoolStringArray( "transform", "color" )
+initial = PoolStringArray( "color" )
+synced = PoolStringArray( "transform" )
 
 [node name="mesh" type="CSGMesh" parent="."]
 material = SubResource( 2 )

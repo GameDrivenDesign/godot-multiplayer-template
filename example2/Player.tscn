@@ -2,7 +2,7 @@
 
 [ext_resource path="res://icon.png" type="Texture" id=1]
 [ext_resource path="res://example2/Player.gd" type="Script" id=2]
-[ext_resource path="res://sync/Sync.tscn" type="PackedScene" id=3]
+[ext_resource path="res://components/sync/Sync.tscn" type="PackedScene" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 30, 30 )
@@ -17,4 +17,4 @@ texture = ExtResource( 1 )
 shape = SubResource( 1 )
 
 [node name="Sync" parent="." instance=ExtResource( 3 )]
-synced_properties = PoolStringArray( "position", "color", "id" )
+synced = PoolStringArray( "position" )

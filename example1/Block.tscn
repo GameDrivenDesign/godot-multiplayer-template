@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://sync/Sync.tscn" type="PackedScene" id=1]
+[ext_resource path="res://components/sync/Sync.tscn" type="PackedScene" id=1]
 
 [node name="Block" type="Node2D"]
 
@@ -15,3 +15,4 @@ __meta__ = {
 }
 
 [node name="Sync" parent="." instance=ExtResource( 1 )]
+initial = PoolStringArray( "position" )
