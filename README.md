@@ -1,93 +1,84 @@
 # Godot Multiplayer Template
 
 Enables a peer-to-peer connection between instances of a Godot game.
-
-## How to Play
-
-In order to start the game, first export it. Start one game as the host, then other clients can join.
-
-The host has the id `1`, and can be set as network authority for all objects, other than the individual players.
-
-E.g. starting my game on Linux
-
-```
-# Start the host
-./mygame.x86_64
-# Start the host on a specified port and IP address
-./mygame.x86_64 --port=8888 --ip=127.0.0.1
-
-
-# Join as a client
-./mygame.x86_64 --client
-./mygame.x86_64 --client --port=8888 --ip=127.0.0.1
-
-# Export game and start it right away (needs to export via UI once first!)
-# Example shown here works only for Linux, adapt accordingly :)
-../Godot_v3.4-stable_x11.64 --export-debug "Linux/X11" && ./mygame.x86_64 --client
-```
+Aims to have you change your code as little as possible and do most things via configuration.
 
 ## Getting Started
 
-In the following, typical concerns of a multiplayer game are described.
+1. Install the addon by copying the `addons/multiplayer` folder to your project in the same location.
+2. Go to `Project > Project Settings > Plugins` and enable the multiplayer addon.
 
 ### Setup
-* Create a level scene, here you can design your level and players will be spawned inside.
-* Create a player scene.
-* Open `Launcher.tscn` and set the level and player scene files in the Launcher's configuration. The Launcher scene will be started as the game's main scene and will then place your selected level inside itself.
+1. Create a player scene. Add a `Sync` node as a child of the player.
+2. Create a game scene, make its root the `NetworkGame` node. Set its `player scene` field to your player scene.
+3. Start multiple instances of the game at the same time using the "Debug Server" button in the top-right.
+4. Continue building your game as normal, until you find things are out-of-sync. Then refer to the below.
 
 ### Synchronize a property
-1. Set the property on the network master.
-2. In the object's `Sync.tscn`, add the property to synced or `unreliable_synced` for faster but potentially dropped updates.
+1. Add a `Sync` node to the scene.
+2. In the `Sync`, add the property to `synced` or `unreliable_synced` for faster but potentially dropped updates.
+
+### Respond to Events and Input
+All objects exist on all clients, so their code executes simultaneously on all clients.
+This can lead to the simulation going out of sync.
+Thus, we usually designate a single "authority" or "network master" for each object that is being simulated.
+
+1. In `Sync`, you can check `process only on master` to automatically run `_process`/`_physics_process`/`_input` only on the network master.
+2. For events, such as collisions or timeouts, use `is_network_master()`.
+
+```
+func on_collided(other):
+	if is_network_master() and other.is_in_group("projectile"):
+		queue_free()
+```
 
 ### Initialize a property with randomness
-1. Create a `_network_ready(is_server)` func.
-2. if `is_server`, decide set the property.
-3. if not `is_server`, you will have access to the same value that was decided on the server
+1. Add a `Sync` node or reuse an existing one. Add the property name to the `initial` list.
+2. Create a `_network_ready(is_source)` func.
+3. if `is_source`, decide set the property.
+4. if not `is_source`, you will have access to the same value that was decided on the source client (i.e., the client that first spawned this object)
+
+```
+var level_seed
+func _network_ready(is_source):
+	if is_source:
+		level_seed = int(rand_range(0, 100))
+
+	var r = RandomNumberGenerator.new()
+	r.seed = level_seed
+	...
+```
 
 ### Call a function on all devices
 
-To call a function on all devices, use `rpc("funcname", arg1)`.
-Put either `remote` or `remotesync` in front of the function name to let Godot know who should get the call.
+To call a function on all devices, 
+1. Put `remotesync` in front of the function name
+2. Use `rpc("funcname", arg1)`.
 
 ```
 func shoot():
-	rpc("spawn_projectile", Vector2(40, 30), 100)
-
-remotesync func spawn_projectile(position, velocity):
-	var p = preload("res://Projectile.tscn")
-	p.position = position
-	p.velocity = velocity
-	get_parent().add_child(p)
-```
-
-### Pattern: Use setters to synchronize derived state
-* To ensure that synchronizing a single property has the desired effects, create a setter that receives the new value and applies all changes.
-
-### Pattern: Updating Properties and Calling Remote Procedures
-* Use Sync.tscn to sync properties and `rpc()` to call procedures on all clients
-* Make sure that these are **only ever called on a single** instance by using `is_network_master`.
-
-### Pattern: Spawning entities on all instances
-* Godot identifies nodes by name. By default, is increments a counter that is added to the default scene name on each client, which can get out of sync when many entities of the same scene spawn quickly.
-* To make sure the name is always the same on all clients, use a UUID:
-```
-func ...():
 	...
-	rpc("spawn_enemy", spawn_position, Uuid.v4())
+	rpc("shake_camera", 30)
 
-remotesync func spawn_enemy(spawn_position, name):
-	var enemy = preload("res://example2/Enemy.tscn").instance()
-	enemy.name = name
-	enemy.position = spawn_position
-	add_child(enemy)
+remotesync func shake_camera(amount):
+	$Camera.start_shake(amount)
 ```
 
-### Physics & RigidBodies
-When using physics objects, such as RigidBodies, use the `SyncableRigidBody` script.
-It extends the default RigidBody by implementing the `_integrate_forces` function, which is the only method allow by the simulation to set properties such as position.
+### Use setters to synchronize derived state
+To ensure that synchronizing a single property has the desired effects, create a setter that receives the new value and applies all changes.
 
-### Configuration
-You can configure the IP address, the port, the maximum number of players in the inspector on the main game scene. By default the game will run on `localhost:8877` and allow for up to 200 players. Both can be overridden by command line arguments.
+```
+var color setget set_color
+
+func set_color(c):
+	color = c
+	$Material.override_color = c
+```
+
+### Configuration and Autoconnect
+You can configure the IP address, the port, the maximum number of players in the inspector on the NetworkGame node. By default the game will run on `localhost:8877` and allow for up to 200 players. Both can be overridden by command line arguments.
+
+Alternatively, you can disable `auto_connect` on the NetworkGame and use `connect_client` and `connect_server` directly.
 
 ## Examples
 
@@ -95,19 +86,19 @@ The example folder contains two small game demos.
 
 ### Pong
 
-Set `res://example1/PongExample.tscn` as the main scene, and `res://example1/player/Player.tscn` as player and launch the game.
+Set `res://example1/PongExample.tscn` as the main scene and launch the game.
 
 Once a player joined, they are assigned a random color, and can move around using the arrow keys. Pressing Enter allows players to spawn blocks in the world. Their position will be synced as well. Several physics blocks are in the scene, they can be kicked around by any player. Holding the mouse button will let the players spawn physics based projectiles. They can also move the blocks, or "kill" other players.
 
 ### Enemies
 
-Set `res://example2/ShooterExample.tscn` as the main scene, and `res://example2/Player.tscn` as player and launch the game.
+Set `res://example2/ShooterExample.tscn` as the main scene and launch the game.
 
 Move around using the arrow keys, hold the mouse to shoot projectiles. Pressing enter, will spawn enemies on the board. Each enemy, will randomly choose an existing player and move towards them. On being touched by an enemy, the player will loose health. Shooting enemies removes them.
 
 ### 3D Example
 
-Set `res://example3/3DLevel.tscn` as the main scene, and `res://example3/Player.tscn` as player and launch the game.
+Set `res://example3/3DLevel.tscn` as the main scene and launch the game.
 
 Players will simply choose a random color for themselves and move to the right of the screen.
 
