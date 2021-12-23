@@ -134,7 +134,4 @@ remote func spawn_object(name: String, parent_path: NodePath, filenameOrNode, st
 	if add_to_scene:
 		parent.add_child(object)
 	
-	if object.has_method("_network_ready"):
-		object._network_ready(is_source)
-	
 	return object
