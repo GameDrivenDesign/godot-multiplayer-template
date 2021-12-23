@@ -26,7 +26,7 @@ Thus, we usually designate a single "authority" or "network master" for each obj
 1. In `Sync`, you can check `process only on master` to automatically run `_process`/`_physics_process`/`_input` only on the network master.
 2. For events, such as collisions or timeouts, use `is_network_master()`.
 
-```
+```gdscript
 func on_collided(other):
 	if is_network_master() and other.is_in_group("projectile"):
 		queue_free()
@@ -40,7 +40,7 @@ This applies to e.g. random numbers or values dependend on the number of players
 3. if `is_source`, decide set the property.
 4. if not `is_source`, you will have access to the same value that was decided on the source client (i.e., the client that first spawned this object)
 
-```
+```gdscript
 var level_seed
 func _network_ready(is_source):
 	if is_source:
@@ -51,13 +51,34 @@ func _network_ready(is_source):
 	...
 ```
 
+### Use setters to synchronize derived state
+To ensure that synchronizing a single property has the desired effects, create a setter that receives the new value and applies all changes.
+
+```gdscript
+var color setget set_color
+
+func set_color(c):
+	color = c
+	$Material.override_color = c
+```
+
+### Removing a synced node
+
+Make sure that only the network master of an object is removing a node. This can be done automatically via
+```gdscript
+$Sync.remove()
+```
+, which will only issues `queue_free` on the network master, or by using the `is_network_master` guard seen in "Respond to input" above.
+
 ### Call a function on all devices
 
-To call a function on all devices, 
+First off, always try to use setters to synchronize state instead of functions. They make your program more solid in terms of players joining late and are easier to reason about.
+
+If you still want to call a function on all devices, 
 1. Put `remotesync` in front of the function name
 2. Use `rpc("funcname", arg1)`.
 
-```
+```gdscript
 func shoot():
 	...
 	rpc("shake_camera", 30)
@@ -66,22 +87,11 @@ remotesync func shake_camera(amount):
 	$Camera.start_shake(amount)
 ```
 
-### Use setters to synchronize derived state
-To ensure that synchronizing a single property has the desired effects, create a setter that receives the new value and applies all changes.
-
-```
-var color setget set_color
-
-func set_color(c):
-	color = c
-	$Material.override_color = c
-```
-
 ### Get all players
 
 The idiomatic way to get all players is to add a "player" group to your player scene.
 You can then use
-```
+```gdscript
 get_tree().get_nodes_in_group("players")
 ```
 
@@ -125,7 +135,7 @@ Players will simply choose a random color for themselves and move to the right o
 There are two cases to be distinguished.
 
 First, if a utility function such as `move_and_slide` changes the property of interest, use `rset_config()` with `RPC_MODE_REMOTE` (which then applies the change only on the remotes, not on your machine where it already happened) as shown below:
-```
+```gdscript
 func _ready():
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTE)
 
@@ -139,7 +149,7 @@ func _process(delta):
 ```
 
 Second, if you change the property directly, use `MultiplayerAPI.RPC_MODE_REMOTESYNC` (which applies the change on both your machine and the remotes):
-```
+```gdscript
 func _ready():
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
 

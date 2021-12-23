@@ -7,7 +7,7 @@ func _ready():
 	# wait for a bit then kill the projectile
 	if is_network_master():
 		yield(get_tree().create_timer(3), "timeout")
-		queue_free()
+		$Sync.remove()
 
 func _physics_process(delta):
 	var collision = move_and_collide(direction * delta * SPEED)

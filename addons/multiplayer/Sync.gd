@@ -46,13 +46,19 @@ func _ready():
 		node.set_process_input(is_master)
 		node.set_physics_process(is_master)
 
+func remove():
+	var node = get_parent()
+	if node.is_network_master():
+		# we just queue free, next _exit_tree will handle syncing
+		node.queue_free()
+
 func _exit_tree():
 	var node = get_parent()
 	if node.is_network_master():
-		rpc("remove")
+		rpc("clients_remove")
 		check_note_removal()
 
-remote func remove():
+remote func clients_remove():
 	check_note_removal()
 	get_parent().queue_free()
 

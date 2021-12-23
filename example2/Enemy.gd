@@ -14,4 +14,4 @@ func _physics_process(delta):
 		var collision = move_and_collide(direction * SPEED * delta)
 		if is_network_master() && collision && collision.get_collider().is_in_group("players"):
 			collision.get_collider().take_damage()
-			queue_free()
+			$Sync.remove()

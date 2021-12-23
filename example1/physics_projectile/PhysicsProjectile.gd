@@ -16,7 +16,7 @@ func _network_ready(is_source):
 	
 	if is_network_master():
 		yield(get_tree().create_timer(2), "timeout")
-		queue_free()
+		$Sync.remove()
 
 func _integrate_forces(state: Physics2DDirectBodyState):
 	if is_network_master():
