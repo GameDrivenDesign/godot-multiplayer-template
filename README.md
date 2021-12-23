@@ -77,6 +77,17 @@ func set_color(c):
 	$Material.override_color = c
 ```
 
+### Get all players
+
+The idiomatic way to get all players is to add a "player" group to your player scene.
+You can then use
+```
+get_tree().get_nodes_in_group("players")
+```
+
+Additionally, **only on the server** you can receive a signal that notifies you about players joining or leaving.
+Check the NetworkGame signals tab and connect the signals to any node that needs to be notified, e.g. your main game scene.
+
 ### Configuration and Autoconnect
 You can configure the IP address, the port, the maximum number of players in the inspector on the NetworkGame node. By default the game will run on `localhost:8877` and allow for up to 200 players. Both can be overridden by command line arguments.
 
