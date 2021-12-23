@@ -6,6 +6,7 @@ export var ip = 'localhost'
 export var max_players = 200
 export var auto_connect = true
 export(PackedScene) var player_scene
+export(NodePath) var players_container
 
 # Note: this are only emitted on the server
 signal player_joined(player, game)
@@ -79,8 +80,8 @@ func client_server_gone():
 # Helper Functions
 ##################
 
-func get_level():
-	return get_child(0)
+func get_players_container():
+	return players_container if players_container else get_child(0).get_path()
 
 func server_init_world(dedicated):
 	for object in get_tree().get_nodes_in_group("synced"):
@@ -96,13 +97,14 @@ remote func client_despawn_initial(path: NodePath):
 	get_node(path).queue_free()
 
 func server_spawn_new_player(id: int):
-	var new_player = spawn_object("player_" + String(id), get_level().get_path(), player_scene.instance(), {}, id, true)
+	var new_player = spawn_object("player_" + String(id), get_players_container(), player_scene.instance(), {}, id, true)
 	server_spawn_object_on_clients(new_player)
 	return new_player
 
 remote func client_remove_player(player_id: int):
-	var player = get_level().get_node(String(player_id))
-	get_level().remove_child(player)
+	var container = get_node(get_players_container())
+	var player = container.get_node(String(player_id))
+	container.remove_child(player)
 	return player
 
 func get_sync(object: Node):

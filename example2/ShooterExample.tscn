@@ -22,5 +22,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Enemy" parent="." instance=ExtResource( 4 )]
+[node name="players" type="Node2D" parent="Game"]
+
+[node name="Enemy" parent="Game" instance=ExtResource( 4 )]
 position = Vector2( 223, 522 )
