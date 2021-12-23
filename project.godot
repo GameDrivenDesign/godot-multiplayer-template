@@ -8,10 +8,26 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node",
+"class": "NetworkGame",
+"language": "GDScript",
+"path": "res://addons/multiplayer/NetworkGame.gd"
+}, {
+"base": "Node",
+"class": "Sync",
+"language": "GDScript",
+"path": "res://addons/multiplayer/Sync.gd"
+} ]
+_global_script_class_icons={
+"NetworkGame": "",
+"Sync": ""
+}
+
 [application]
 
 config/name="MultiplayerTemplate"
-run/main_scene="res://example3/3DLevel.tscn"
+run/main_scene="res://example2/ShooterExample.tscn"
 config/icon="res://icon.png"
 
 [editor_plugins]

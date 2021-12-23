@@ -1,4 +1,5 @@
 extends Node
+class_name NetworkGame
 
 export var port = 8877
 export var ip = 'localhost'
@@ -10,10 +11,12 @@ export(PackedScene) var player_scene
 signal player_joined(player, game)
 signal player_left(player, game)
 
+var despawned_initial_paths = []
+
 func _ready():
 	if not player_scene:
 		push_error("Player Scene not set in NetworkGame")
-	name = "Game"
+	name = "NetworkGame"
 	if auto_connect:
 		connect_via_cli()
 
@@ -56,6 +59,9 @@ func server_client_connected(new_id: int):
 			if not node.get_node("Sync").spawned_at_game_start:
 				server_spawn_object_for(new_id, node)
 		
+		for path in despawned_initial_paths:
+			rpc("client_despawn_initial", path)
+		
 		var player = server_spawn_new_player(new_id)
 		emit_signal("player_joined", player, self)
 
@@ -85,6 +91,9 @@ func server_init_world(dedicated):
 	
 	if not dedicated:
 		server_spawn_new_player(1)
+
+remote func client_despawn_initial(path: NodePath):
+	get_node(path).queue_free()
 
 func server_spawn_new_player(id: int):
 	var new_player = spawn_object("player_" + String(id), get_level().get_path(), player_scene.instance(), {}, id, true)

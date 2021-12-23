@@ -57,7 +57,7 @@ func _enter_tree():
 	button.icon = base.get_icon("MainPlay", "EditorIcons")
 	
 	add_custom_type("Sync", "Node", preload("Sync.gd"), base.get_icon("Reload", "EditorIcons"))
-	add_custom_type("NetworkGame", "Node", preload("Game.gd"), base.get_icon("MainPlay", "EditorIcons"))
+	add_custom_type("NetworkGame", "Node", preload("NetworkGame.gd"), base.get_icon("MainPlay", "EditorIcons"))
 
 func update_text():
 	if button:

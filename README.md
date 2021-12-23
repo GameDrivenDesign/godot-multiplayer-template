@@ -32,7 +32,9 @@ func on_collided(other):
 		queue_free()
 ```
 
-### Initialize a property with randomness
+### Initialize a property with a value that should be the same everywhere
+This applies to e.g. random numbers or values dependend on the number of players. If your value is constant you of course don't need to synchronize it.
+
 1. Add a `Sync` node or reuse an existing one. Add the property name to the `initial` list.
 2. Create a `_network_ready(is_source)` func.
 3. if `is_source`, decide set the property.
