@@ -2,7 +2,7 @@
 
 [ext_resource path="res://icon.png" type="Texture" id=1]
 [ext_resource path="res://example2/Player.gd" type="Script" id=2]
-[ext_resource path="res://addons/multiplayer/helper/Sync.gd" type="Script" id=3]
+[ext_resource path="res://addons/multiplayer/Sync.gd" type="Script" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 30, 30 )

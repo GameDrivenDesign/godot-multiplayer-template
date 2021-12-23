@@ -11,7 +11,7 @@ config_version=4
 [application]
 
 config/name="MultiplayerTemplate"
-run/main_scene="res://example1/PongExample.tscn"
+run/main_scene="res://example3/3DLevel.tscn"
 config/icon="res://icon.png"
 
 [editor_plugins]

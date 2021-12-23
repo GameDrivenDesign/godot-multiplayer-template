@@ -56,11 +56,12 @@ func _enter_tree():
 	button.get_popup().connect("id_pressed", self, "launch")
 	button.icon = base.get_icon("MainPlay", "EditorIcons")
 	
-	add_custom_type("Sync", "Node", preload("helper/Sync.gd"), base.get_icon("Reload", "EditorIcons"))
-	add_custom_type("NetworkGame", "Node", preload("helper/Game.gd"), base.get_icon("MainPlay", "EditorIcons"))
+	add_custom_type("Sync", "Node", preload("Sync.gd"), base.get_icon("Reload", "EditorIcons"))
+	add_custom_type("NetworkGame", "Node", preload("Game.gd"), base.get_icon("MainPlay", "EditorIcons"))
 
 func update_text():
-	button.text = OPTIONS[last_selected_option] + " (Ctrl+Shift+D)"
+	if button:
+		button.text = OPTIONS[last_selected_option] + " (Ctrl+Shift+D)"
 
 func _exit_tree():
 	disable_plugin()

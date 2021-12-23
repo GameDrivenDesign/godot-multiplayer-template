@@ -23,7 +23,7 @@ func _ready():
 	set_process(synced.size() > 0 or unreliable_synced.size() > 0)
 	
 	if use_ids_for_spawning and not is_synced_copy:
-		node.name += "_" + preload("res://addons/multiplayer/helper/uuid.gd").v4()
+		node.name += "_" + preload("uuid.gd").v4()
 	if node.has_method("_network_ready"):
 		node._network_ready(not is_synced_copy)
 	
