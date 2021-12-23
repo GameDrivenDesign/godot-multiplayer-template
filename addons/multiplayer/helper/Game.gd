@@ -3,8 +3,8 @@ extends Node
 export var port = 8877
 export var ip = 'localhost'
 export var max_players = 200
+export var auto_connect = true
 export(PackedScene) var player_scene
-var is_server = false
 
 # Note: this are only emitted on the server
 signal player_joined(player, game)
@@ -13,34 +13,37 @@ signal player_left(player, game)
 func _ready():
 	if not player_scene:
 		push_error("Player Scene not set in NetworkGame")
-	
-	var peer = NetworkedMultiplayerENet.new()
-	var is_client = "--client" in OS.get_cmdline_args() or OS.get_environment("USE_CLIENT") == "true"
-	var is_dedicated = "--dedicated" in OS.get_cmdline_args()
-	is_server = not is_client
-	
 	name = "Game"
-	
+	if auto_connect:
+		connect_via_cli()
+
+func connect_via_cli():
 	for argument in OS.get_cmdline_args():
 		if argument.find("=") > -1:
 			var key_value = argument.split("=")
 			match key_value[0]:
-				'--ip': ip=key_value[1]
-				'--port': port=int(key_value[1])
+				'--ip': ip = key_value[1]
+				'--port': port = int(key_value[1])
 	
-	if is_client:
-		assert(peer.create_client(ip, port) == OK)
-		assert(get_tree().connect("server_disconnected", self, "client_server_gone") == OK)
+	if "--client" in OS.get_cmdline_args() or OS.get_environment("USE_CLIENT") == "true":
+		connect_client(ip, port)
 	else:
-		print("Listening for connections on " + String(port) + " ...")
-		assert(peer.create_server(port, max_players) == OK)
-		assert(get_tree().connect("network_peer_connected", self, "server_client_connected") == OK)
-		assert(get_tree().connect("network_peer_disconnected", self, "server_client_disconnected") == OK)
-	
+		connect_server(port, "--dedicated" in OS.get_cmdline_args())
+
+func connect_client(ip, port):
+	var peer = NetworkedMultiplayerENet.new()
+	assert(peer.create_client(ip, port) == OK)
+	assert(get_tree().connect("server_disconnected", self, "client_server_gone") == OK)
 	get_tree().set_network_peer(peer)
-	
-	if not is_client:
-		server_init_world(is_dedicated)
+
+func connect_server(port, is_dedicated):
+	var peer = NetworkedMultiplayerENet.new()
+	print("Listening for connections on " + String(port) + " ...")
+	assert(peer.create_server(port, max_players) == OK)
+	assert(get_tree().connect("network_peer_connected", self, "server_client_connected") == OK)
+	assert(get_tree().connect("network_peer_disconnected", self, "server_client_disconnected") == OK)
+	get_tree().set_network_peer(peer)
+	server_init_world(is_dedicated)
 
 ################
 # Event Handlers
