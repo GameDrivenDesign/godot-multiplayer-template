@@ -159,3 +159,24 @@ func _process(delta):
 		# change our position and let us and everyone else apply it (because of RPC_MODE_REMOTESYNC)
 		rset("position", position + Vector2(20 * delta, 0))
 ```
+
+## Deploying the Game
+
+To run the game after exporting it, you will need to specify whether each instance acts as a host or a client. 
+
+```
+# Start the host
+./MyGameExport
+# Start the host on a specified port and IP address
+./MyGameExport --port=8888 --ip=127.0.0.1
+# Join as a client
+./MyGameExport --client
+./MyGameExport --client --port=8888 --ip=127.0.0.1
+```
+Alternatively, You also have the option to start the game as a dedicated host, meaning this instance will not spawn a player.
+```
+# Start the dedicated host
+./MyGameExport --dedicated
+# Join as a client
+./MyGameExport --client
+```
