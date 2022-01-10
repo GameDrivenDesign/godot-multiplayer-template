@@ -13,16 +13,16 @@ const OPTIONS = [
 func launch(id):
 	if id == 0:
 		get_editor_interface().play_main_scene()
-		OS.execute(OS.get_executable_path(), ["--position", "1800,100", "--client"], false)
+		OS.execute(OS.get_executable_path(), ["--position", "800,100", "--client"], false)
 	elif id == 1:
-		OS.execute(OS.get_executable_path(), ["--position", "1800,100"], false)
+		OS.execute(OS.get_executable_path(), ["--position", "800,100"], false)
 		OS.set_environment("USE_CLIENT", "true")
 		get_editor_interface().play_main_scene()
 		OS.set_environment("USE_CLIENT", "false")
 	elif id == 2:
 		get_editor_interface().play_main_scene()
-		OS.execute(OS.get_executable_path(), ["--position", "100,100", "--client"], false)
-		OS.execute(OS.get_executable_path(), ["--position", "800,100", "--client"], false)
+		OS.execute(OS.get_executable_path(), ["--position", "600,100", "--client"], false)
+		OS.execute(OS.get_executable_path(), ["--position", "800,300", "--client"], false)
 	last_selected_option = id
 	update_text()
 

@@ -15,7 +15,7 @@ Aims to have you change your code as little as possible and do most things via c
 4. Continue building your game as normal, until you find things are out-of-sync. Then refer to the below.
 
 ### Synchronize a property
-1. Add a `Sync` node to the scene.
+1. Add a `Sync` node to the scene as a **direct child** of the scene root.
 2. In the `Sync`, add the property to `synced` or `unreliable_synced` for faster but potentially dropped updates.
 
 ### Respond to Events and Input
