@@ -7,6 +7,7 @@ export var max_players = 200
 export var auto_connect = true
 export(PackedScene) var player_scene
 export(NodePath) var players_container
+export var change_window_title = true
 
 # Note: this are only emitted on the server
 signal player_joined(player, game)
@@ -39,6 +40,9 @@ func connect_client(ip, port):
 	assert(peer.create_client(ip, port) == OK)
 	assert(get_tree().connect("server_disconnected", self, "client_server_gone") == OK)
 	get_tree().set_network_peer(peer)
+	
+	if change_window_title:
+		append_title_string(" (Client)")
 
 func connect_server(port, is_dedicated):
 	var peer = NetworkedMultiplayerENet.new()
@@ -48,6 +52,9 @@ func connect_server(port, is_dedicated):
 	assert(get_tree().connect("network_peer_disconnected", self, "server_client_disconnected") == OK)
 	get_tree().set_network_peer(peer)
 	server_init_world(is_dedicated)
+	
+	if change_window_title:
+		append_title_string(" (Server)")
 
 ################
 # Event Handlers
@@ -149,3 +156,7 @@ remote func spawn_object(name: String, parent_path: NodePath, filenameOrNode, st
 		parent.add_child(object)
 	
 	return object
+
+func append_title_string(suffix: String):
+	var title = ProjectSettings.get("application/config/name")
+	OS.set_window_title(title + suffix)
