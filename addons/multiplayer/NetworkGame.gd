@@ -1,7 +1,7 @@
 extends Node
 class_name NetworkGame
 
-export var port = 8877
+export(int) var port = 8877
 export var ip = 'localhost'
 export var max_players = 200
 export var auto_connect = true
@@ -50,7 +50,7 @@ func create_client(ip, port):
 	print("Connecting to " + ip + ":" + str(port))
 	if is_on_web():
 		var peer = WebSocketClient.new()
-		assert(peer.connect_to_url(ip + ":" + str(port), PoolStringArray(), true) == OK)
+		assert(peer.connect_to_url("wss://" + ip + ":" + str(port), ["wss"], true) == OK)
 		return peer
 	else:
 		var peer = NetworkedMultiplayerENet.new()

@@ -7,8 +7,8 @@
 
 [node name="NetworkGame" type="Node"]
 script = ExtResource( 2 )
+port = 443
 ip = "dev.tmbe.me"
-port = "443"
 player_scene = ExtResource( 3 )
 
 [node name="Game" type="Node2D" parent="."]
