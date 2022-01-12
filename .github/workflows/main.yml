@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Web
-      uses: nhydock/docker-godot-export@master
+      uses: gamedrivendesign/docker-godot-export@gh-action
       with:
         export-template: HTML5
         output-filename: multiplayer
