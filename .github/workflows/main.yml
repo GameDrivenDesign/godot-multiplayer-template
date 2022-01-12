@@ -32,13 +32,14 @@ jobs:
         export-template: ServerWebsockets
         output-filename: server
     - uses: appleboy/ssh-action@master
+      env:
+        user: ${{ secrets.USERNAME }}
+        repo: ${{ github.event.repository.name }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
+        envs: user,repo
         key: ${{ secrets.KEY }}
-        env:
-          user: ${{ secrets.USERNAME }}
-          repo: ${{ github.event.repository.name }}
         script: |
           mkdir -p "/home/$user/godot-servers/$repo"
     - uses: appleboy/scp-action@master
@@ -49,13 +50,14 @@ jobs:
         source: ./output/server
         target: /home/${{ github.event.repository.name }}/godot-servers/${{ github.event.repository.name }}
     - uses: appleboy/ssh-action@master
+      env:
+        user: ${{ secrets.USERNAME }}
+        repo: ${{ github.event.repository.name }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
-        env:
-          user: ${{ secrets.USERNAME }}
-          repo: ${{ github.event.repository.name }}
+        envs: user,repo
         script: |
           cd "/home/$user/godot-servers/$repo"
           ./server &
