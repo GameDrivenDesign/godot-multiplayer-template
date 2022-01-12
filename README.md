@@ -103,6 +103,15 @@ You can configure the IP address, the port, the maximum number of players in the
 
 Alternatively, you can disable `auto_connect` on the NetworkGame and use `connect_client` and `connect_server` directly.
 
+### Exporting
+
+The addon supports native platforms as well as exports for the web.
+Exporting for a native platform is the same as usual.
+To export for the web, you'll need two builds:
+1. The export for the client. Configure this as usual for the `HTML5` platform.
+2. The export for the server. This one needs to run on a native platform.
+   You also need to **add the feature** `for_web` under the *Features* tab in the *Custom* input field.
+
 ## Examples
 
 The example folder contains two small game demos.
