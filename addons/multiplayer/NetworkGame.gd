@@ -23,6 +23,9 @@ func _ready():
 		connect_via_cli()
 
 func connect_via_cli():
+	if OS.has_feature("editor"):
+		ip = 'localhost'
+	
 	for argument in OS.get_cmdline_args():
 		if argument.find("=") > -1:
 			var key_value = argument.split("=")

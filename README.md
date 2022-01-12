@@ -9,16 +9,19 @@ Aims to have you change your code as little as possible and do most things via c
 2. Go to `Project > Project Settings > Plugins` and enable the multiplayer addon.
 
 ### Setup
+
 1. Create a player scene. Add a `Sync` node as a child of the player.
 2. Create a game scene, make its root the `NetworkGame` node. Set its `player scene` field to your player scene.
 3. Start multiple instances of the game at the same time using the "Debug Server" button in the top-right.
 4. Continue building your game as normal, until you find things are out-of-sync. Then refer to the below.
 
 ### Synchronize a property
+
 1. Add a `Sync` node to the scene as a **direct child** of the scene root.
 2. In the `Sync`, add the property to `synced` or `unreliable_synced` for faster but potentially dropped updates.
 
 ### Respond to Events and Input
+
 All objects exist on all clients, so their code executes simultaneously on all clients.
 This can lead to the simulation going out of sync.
 Thus, we usually designate a single "authority" or "network master" for each object that is being simulated.
@@ -33,6 +36,7 @@ func on_collided(other):
 ```
 
 ### Initialize a property with a value that should be the same everywhere
+
 This applies to e.g. random numbers or values dependend on the number of players. If your value is constant you of course don't need to synchronize it.
 
 1. Add a `Sync` node or reuse an existing one. Add the property name to the `initial` list.
@@ -52,6 +56,7 @@ func _network_ready(is_source):
 ```
 
 ### Use setters to synchronize derived state
+
 To ensure that synchronizing a single property has the desired effects, create a setter that receives the new value and applies all changes.
 
 ```gdscript
@@ -65,16 +70,19 @@ func set_color(c):
 ### Removing a synced node
 
 Make sure that only the network master of an object is removing a node. This can be done automatically via
+
 ```gdscript
 $Sync.remove()
 ```
+
 , which will only issues `queue_free` on the network master, or by using the `is_network_master` guard seen in "Respond to input" above.
 
 ### Call a function on all devices
 
 First off, always try to use setters to synchronize state instead of functions. They make your program more solid in terms of players joining late and are easier to reason about.
 
-If you still want to call a function on all devices, 
+If you still want to call a function on all devices,
+
 1. Put `remotesync` in front of the function name
 2. Use `rpc("funcname", arg1)`.
 
@@ -91,6 +99,7 @@ remotesync func shake_camera(amount):
 
 The idiomatic way to get all players is to add a "player" group to your player scene.
 You can then use
+
 ```gdscript
 get_tree().get_nodes_in_group("players")
 ```
@@ -99,6 +108,7 @@ Additionally, **only on the server** you can receive a signal that notifies you 
 Check the NetworkGame signals tab and connect the signals to any node that needs to be notified, e.g. your main game scene.
 
 ### Configuration and Autoconnect
+
 You can configure the IP address, the port, the maximum number of players in the inspector on the NetworkGame node. By default the game will run on `localhost:8877` and allow for up to 200 players. Both can be overridden by command line arguments.
 
 Alternatively, you can disable `auto_connect` on the NetworkGame and use `connect_client` and `connect_server` directly.
@@ -108,9 +118,10 @@ Alternatively, you can disable `auto_connect` on the NetworkGame and use `connec
 The addon supports native platforms as well as exports for the web.
 Exporting for a native platform is the same as usual.
 To export for the web, you'll need two builds:
+
 1. The export for the client. Configure this as usual for the `HTML5` platform.
 2. The export for the server. This one needs to run on a native platform.
-   You also need to **add the feature** `for_web` under the *Features* tab in the *Custom* input field.
+   You also need to **add the feature** `for_web` under the _Features_ tab in the _Custom_ input field.
 
 ## Examples
 
@@ -134,9 +145,6 @@ Set `res://example3/3DLevel.tscn` as the main scene and launch the game.
 
 Players will simply choose a random color for themselves and move to the right of the screen.
 
-
-
-
 ## Advanced Usage of Godot Synchronization
 
 **Synching throughout the game**
@@ -144,6 +152,7 @@ Players will simply choose a random color for themselves and move to the right o
 There are two cases to be distinguished.
 
 First, if a utility function such as `move_and_slide` changes the property of interest, use `rset_config()` with `RPC_MODE_REMOTE` (which then applies the change only on the remotes, not on your machine where it already happened) as shown below:
+
 ```gdscript
 func _ready():
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTE)
@@ -158,6 +167,7 @@ func _process(delta):
 ```
 
 Second, if you change the property directly, use `MultiplayerAPI.RPC_MODE_REMOTESYNC` (which applies the change on both your machine and the remotes):
+
 ```gdscript
 func _ready():
 	rset_config("position", MultiplayerAPI.RPC_MODE_REMOTESYNC)
@@ -171,7 +181,7 @@ func _process(delta):
 
 ## Deploying the Game
 
-To run the game after exporting it, you will need to specify whether each instance acts as a host or a client. 
+To run the game after exporting it, you will need to specify whether each instance acts as a host or a client. While in the Godot editor, the game will always run on `localhost` to make debugging your game easier.
 
 ```
 # Start the host
@@ -182,7 +192,9 @@ To run the game after exporting it, you will need to specify whether each instan
 ./MyGameExport --client
 ./MyGameExport --client --port=8888 --ip=127.0.0.1
 ```
+
 Alternatively, You also have the option to start the game as a dedicated host, meaning this instance will not spawn a player.
+
 ```
 # Start the dedicated host
 ./MyGameExport --dedicated
