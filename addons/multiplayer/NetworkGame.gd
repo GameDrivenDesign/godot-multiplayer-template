@@ -58,7 +58,7 @@ func create_client(ip, port):
 		return peer
 
 func connect_server(port, is_dedicated):
-	var peer = create_server(port)
+	var peer = create_server(8877)
 	assert(get_tree().connect("network_peer_connected", self, "server_client_connected") == OK)
 	assert(get_tree().connect("network_peer_disconnected", self, "server_client_disconnected") == OK)
 	get_tree().set_network_peer(peer)
