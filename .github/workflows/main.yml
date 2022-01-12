@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Web
+    - name: Build Web
       uses: gamedrivendesign/docker-godot-export@gh-action
       with:
         export-template: HTML5
