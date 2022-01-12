@@ -7,6 +7,7 @@
 
 [node name="NetworkGame" type="Node"]
 script = ExtResource( 2 )
+ip = "tmbe.me"
 player_scene = ExtResource( 3 )
 
 [node name="Game" type="Node2D" parent="."]

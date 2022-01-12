@@ -47,8 +47,9 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
-        source: ./output/server
+        source: ./output/*
         target: /home/${{ secrets.USERNAME }}/godot-servers/${{ github.event.repository.name }}
+        strip_components: 1
     - uses: appleboy/ssh-action@master
       env:
         USER: ${{ secrets.USERNAME }}
