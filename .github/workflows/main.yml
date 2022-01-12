@@ -61,5 +61,5 @@ jobs:
         envs: USER,REPO
         script: |
           cd "/home/$USER/godot-servers/$REPO"
-          ./server &
+          ../Godot_v3.4.2-stable_linux_headless.64 --main-pack server.pck &
 
