@@ -30,24 +30,31 @@ func connect_via_cli():
 				'--ip': ip = key_value[1]
 				'--port': port = int(key_value[1])
 	
-	if "--client" in OS.get_cmdline_args() or OS.get_environment("USE_CLIENT") == "true":
+	if is_on_web() or "--client" in OS.get_cmdline_args() or OS.get_environment("USE_CLIENT") == "true":
 		connect_client(ip, port)
 	else:
 		connect_server(port, "--dedicated" in OS.get_cmdline_args())
 
 func connect_client(ip, port):
-	var peer = NetworkedMultiplayerENet.new()
-	assert(peer.create_client(ip, port) == OK)
+	var peer = create_client(ip, port)
 	assert(get_tree().connect("server_disconnected", self, "client_server_gone") == OK)
 	get_tree().set_network_peer(peer)
 	
 	if change_window_title:
 		append_title_string(" (Client)")
 
+func create_client(ip, port):
+	if is_on_web():
+		var peer = WebSocketClient.new()
+		assert(peer.connect_to_url(ip + ":" + str(port), PoolStringArray(), true) == OK)
+		return peer
+	else:
+		var peer = NetworkedMultiplayerENet.new()
+		assert(peer.create_client(ip, port) == OK)
+		return peer
+
 func connect_server(port, is_dedicated):
-	var peer = NetworkedMultiplayerENet.new()
-	print("Listening for connections on " + String(port) + " ...")
-	assert(peer.create_server(port, max_players) == OK)
+	var peer = create_server(port)
 	assert(get_tree().connect("network_peer_connected", self, "server_client_connected") == OK)
 	assert(get_tree().connect("network_peer_disconnected", self, "server_client_disconnected") == OK)
 	get_tree().set_network_peer(peer)
@@ -55,6 +62,23 @@ func connect_server(port, is_dedicated):
 	
 	if change_window_title:
 		append_title_string(" (Server)")
+
+func create_server(port):
+	print("Listening for connections on " + String(port) + " ...")
+	if is_for_web():
+		var peer = WebSocketServer.new()
+		assert(peer.listen(port, PoolStringArray(), true) == OK)
+		return peer
+	else:
+		var peer = NetworkedMultiplayerENet.new()
+		assert(peer.create_server(port, max_players) == OK)
+		return peer
+
+func is_on_web():
+	return OS.get_name() == "HTML5"
+
+func is_for_web():
+	return OS.has_feature("for_web")
 
 ################
 # Event Handlers
