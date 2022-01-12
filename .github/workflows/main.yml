@@ -1,6 +1,9 @@
 name: deploy
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   deploy_web:
@@ -33,8 +36,11 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
+        env:
+          user: ${{ secrets.USERNAME }}
+          repo: ${{ github.event.repository.name }}
         script: |
-          mkdir -p "/home/${{ secrets.USERNAME }}/godot-servers/${{ github.event.repository.name }}"
+          mkdir -p "/home/$user/godot-servers/$repo"
     - uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -47,7 +53,10 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
+        env:
+          user: ${{ secrets.USERNAME }}
+          repo: ${{ github.event.repository.name }}
         script: |
-          cd "/home/${{ secrets.USERNAME }}/godot-servers/${{ github.event.repository.name }}"
+          cd "/home/$user/godot-servers/$repo"
           ./server &
 
