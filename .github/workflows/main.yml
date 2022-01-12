@@ -33,15 +33,18 @@ jobs:
         output-filename: server
     - uses: appleboy/ssh-action@master
       env:
-        user: ${{ secrets.USERNAME }}
-        repo: ${{ github.event.repository.name }}
+        USER: ${{ secrets.USERNAME }}
+        REPO: ${{ github.event.repository.name }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        envs: user,repo
+        envs: USER,REPO
         key: ${{ secrets.KEY }}
         script: |
-          mkdir -p "/home/$user/godot-servers/$repo"
+          echo $USER
+          echo $REPO
+          echo $PWD
+          mkdir -p "/home/$USER/godot-servers/$REPO"
     - uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -51,14 +54,14 @@ jobs:
         target: /home/${{ github.event.repository.name }}/godot-servers/${{ github.event.repository.name }}
     - uses: appleboy/ssh-action@master
       env:
-        user: ${{ secrets.USERNAME }}
-        repo: ${{ github.event.repository.name }}
+        USER: ${{ secrets.USERNAME }}
+        REPO: ${{ github.event.repository.name }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
-        envs: user,repo
+        envs: USER,REPO
         script: |
-          cd "/home/$user/godot-servers/$repo"
+          cd "/home/$USER/godot-servers/$REPO"
           ./server &
 
