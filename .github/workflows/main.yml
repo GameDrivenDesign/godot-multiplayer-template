@@ -41,9 +41,6 @@ jobs:
         envs: USER,REPO
         key: ${{ secrets.KEY }}
         script: |
-          echo $USER
-          echo $REPO
-          echo $PWD
           mkdir -p "/home/$USER/godot-servers/$REPO"
     - uses: appleboy/scp-action@master
       with:
@@ -51,7 +48,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         source: ./output/server
-        target: /home/${{ github.event.repository.name }}/godot-servers/${{ github.event.repository.name }}
+        target: /home/${{ secrets.USERNAME }}/godot-servers/${{ github.event.repository.name }}
     - uses: appleboy/ssh-action@master
       env:
         USER: ${{ secrets.USERNAME }}
