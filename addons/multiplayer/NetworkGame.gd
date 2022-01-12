@@ -47,6 +47,7 @@ func connect_client(ip, port):
 		append_title_string(" (Client)")
 
 func create_client(ip, port):
+	print("Connecting to " + ip + ":" + str(port))
 	if is_on_web():
 		var peer = WebSocketClient.new()
 		assert(peer.connect_to_url(ip + ":" + str(port), PoolStringArray(), true) == OK)
