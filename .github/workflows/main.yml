@@ -1,0 +1,21 @@
+name: deploy
+
+on: [push]
+
+jobs:
+  build:
+    name: Export
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Web
+      uses: nhydock/docker-godot-export@master
+      with:
+        export-template: HTML5
+        output-filename: multiplayer
+    - uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./output
+
