@@ -66,10 +66,12 @@ func connect_server(port, is_dedicated):
 func create_server(port):
 	print("Listening for connections on " + String(port) + " ...")
 	if is_for_web():
+		print("Using web listener")
 		var peer = WebSocketServer.new()
 		assert(peer.listen(port, PoolStringArray(), true) == OK)
 		return peer
 	else:
+		print("Using enet/native listener")
 		var peer = NetworkedMultiplayerENet.new()
 		assert(peer.create_server(port, max_players) == OK)
 		return peer
