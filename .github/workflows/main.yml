@@ -17,12 +17,14 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./output
+
   deploy_server:
-    - name: Export Server
-    - runs-on: ubuntu-latest
+    name: Export Server
+    runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v1
-    - name: Build Server
-      uses: gamedrivendesign/docker-godot-export@gh-action
+    - uses: gamedrivendesign/docker-godot-export@gh-action
+      name: Build Server
       with:
         export-template: ServerWebsockets
         output-filename: server
