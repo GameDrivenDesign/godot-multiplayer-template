@@ -20,6 +20,14 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./output
+    - uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        source: ./output/*
+        target: /home/${{ secrets.USERNAME }}/godot-servers/${{ github.event.repository.name }}
+        strip_components: 1
 
   deploy_server:
     name: Export Server
@@ -61,5 +69,7 @@ jobs:
         envs: USER,REPO
         script: |
           cd "/home/$USER/godot-servers/$REPO"
-          ../Godot_v3.4.2-stable_linux_headless.64 --main-pack server.pck &
+          tmux kill-session -t $REPO
+          tmux new-session -d -s $REPO
+          tmux send-keys -t $REPO "../Godot_v3.4.2-stable_linux_headless.64 --main-pack server.pck" C-m
 
