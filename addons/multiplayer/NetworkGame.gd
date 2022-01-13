@@ -50,7 +50,7 @@ func create_client(ip, port):
 	print("Connecting to " + ip + ":" + str(port))
 	if is_on_web():
 		var peer = WebSocketClient.new()
-		assert(peer.connect_to_url("wss://" + ip + ":" + str(port), ["wss"], true) == OK)
+		assert(peer.connect_to_url(ip + ":" + str(port), [], true) == OK)
 		return peer
 	else:
 		var peer = NetworkedMultiplayerENet.new()
