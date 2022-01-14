@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://addons/multiplayer/Sync.gd" type="Script" id=1]
+[ext_resource path="res://player/player.gd" type="Script" id=2]
+
+[node name="player" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Sync" type="Node" parent="."]
+script = ExtResource( 1 )
+initial = PoolStringArray( "color" )
+unreliable_synced = PoolStringArray( "position" )
+process_only_network_master = true
+
+[node name="token" type="ColorRect" parent="."]
+margin_left = -19.0
+margin_top = -19.0
+margin_right = 21.0
+margin_bottom = 21.0
+__meta__ = {
+"_edit_use_anchors_": false
+}

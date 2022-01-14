@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=2]
 
-[ext_resource path="res://example3/3DPlayer.gd" type="Script" id=1]
+[ext_resource path="res://examples/example3/3DPlayer.gd" type="Script" id=1]
 [ext_resource path="res://addons/multiplayer/Sync.gd" type="Script" id=3]
 
 [sub_resource type="SpatialMaterial" id=2]

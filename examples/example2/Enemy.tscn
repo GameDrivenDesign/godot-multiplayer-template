@@ -1,12 +1,31 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://addons/multiplayer/Sync.gd" type="Script" id=1]
-[ext_resource path="res://example2/Enemy.gd" type="Script" id=2]
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends KinematicBody2D
+
+var target_id
+const SPEED = 50
+var target
+
+func _ready():
+	if target_id:
+		target = get_parent().get_node_or_null(str(target_id))
+
+func _physics_process(delta):
+	if target:
+		var direction = (target.position - position).normalized()
+		var collision = move_and_collide(direction * SPEED * delta)
+		if is_network_master() && collision && collision.get_collider().is_in_group(\"players\"):
+			collision.get_collider().take_damage()
+			$Sync.remove()
+"
 
 [sub_resource type="RectangleShape2D" id=1]
 
 [node name="Enemy" type="KinematicBody2D" groups=["enemy"]]
-script = ExtResource( 2 )
+script = SubResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )

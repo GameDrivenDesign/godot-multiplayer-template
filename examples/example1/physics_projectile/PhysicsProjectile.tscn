@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://example1/physics_projectile/PhysicsProjectile.gd" type="Script" id=1]
-[ext_resource path="res://addons/multiplayer/Sync.gd" type="Script" id=2]
+[ext_resource path="res://addons/multiplayer/Sync.gd" type="Script" id=1]
+[ext_resource path="res://examples/example1/physics_projectile/PhysicsProjectile.gd" type="Script" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 7.2503, 6.93612 )
@@ -9,7 +9,7 @@ extents = Vector2( 7.2503, 6.93612 )
 [node name="physics_projectile" type="RigidBody2D"]
 contacts_reported = 1
 contact_monitor = true
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 
 [node name="ColorRect" type="ColorRect" parent="."]
 margin_left = -7.0
@@ -24,5 +24,5 @@ __meta__ = {
 shape = SubResource( 1 )
 
 [node name="Sync" type="Node" parent="."]
-script = ExtResource( 2 )
+script = ExtResource( 1 )
 initial = PoolStringArray( "position", "rotation", "direction", "owned_by_id" )
