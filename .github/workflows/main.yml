@@ -71,5 +71,5 @@ jobs:
           cd "/home/$USER/godot-servers/$REPO"
           tmux kill-session -t $REPO
           tmux new-session -d -s $REPO
-          tmux send-keys -t $REPO "../Godot_v3.4.2-stable_linux_headless.64 --main-pack server.pck" C-m
+          tmux send-keys -t $REPO "../Godot_v3.4.2-stable_linux_headless.64 --main-pack server.pck --dedicated" C-m
 

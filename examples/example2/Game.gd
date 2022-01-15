@@ -15,7 +15,7 @@ func _process(_delta):
 		spawn_enemy(spawn_position, target_id)
 
 func spawn_enemy(spawn_position, target_id):
-	var enemyClass = preload("res://example2/Enemy.tscn")
+	var enemyClass = preload("res://examples/example2/Enemy.tscn")
 	var enemy = enemyClass.instance()
 	enemy.set_network_master(1)
 	enemy.position = spawn_position

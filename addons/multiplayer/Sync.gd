@@ -4,12 +4,15 @@ class_name Sync
 export (PoolStringArray) var initial = []
 export (PoolStringArray) var synced = []
 export (PoolStringArray) var unreliable_synced = []
+export (PoolStringArray) var interpolated_synced = []
 
 export var process_only_network_master = false
 export var use_ids_for_spawning = true
 
 var synced_last = {}
 var unreliable_synced_last = {}
+var interpolated_synced_last = {}
+var interpolated_synced_target = {}
 var is_synced_copy = false
 var spawned_at_game_start = false
 
@@ -21,7 +24,7 @@ func _ready():
 	# execute after the nodes we are syncing
 	process_priority = 1000
 	
-	set_process(synced.size() > 0 or unreliable_synced.size() > 0)
+	set_process(synced.size() > 0 or unreliable_synced.size() > 0 or interpolated_synced.size() > 0)
 	
 	if use_ids_for_spawning and not is_synced_copy and get_tree().has_network_peer():
 		node.name += "_" + preload("uuid.gd").v4()
@@ -34,6 +37,9 @@ func _ready():
 	for property in unreliable_synced:
 		node.rset_config(property, MultiplayerAPI.RPC_MODE_REMOTE)
 		unreliable_synced_last[property] = null
+	for property in interpolated_synced:
+		node.rset_config(property, MultiplayerAPI.RPC_MODE_REMOTE)
+		interpolated_synced_last[property] = null
 	
 	if get_tree().has_network_peer() and not is_synced_copy:
 		game.server_spawn_object_on_clients(node)
@@ -66,9 +72,12 @@ func check_note_removal():
 	if spawned_at_game_start:
 		get_node("/root/NetworkGame").despawned_initial_paths.append(get_parent().get_path())
 
-func _process(_delta):
+func _process(delta):
 	var node = get_parent()
 	if not node.is_network_master():
+		for property in interpolated_synced_target:
+			get_parent().set(property,
+				lerp(get_parent().get(property), interpolated_synced_target[property], delta * 10))
 		return
 	
 	for property in synced:
@@ -82,6 +91,17 @@ func _process(_delta):
 		if value != unreliable_synced_last[property]:
 			node.rset_unreliable(property, value)
 			unreliable_synced_last[property] = value
+	
+	for property in interpolated_synced:
+		var value = node.get(property)
+		# if value != interpolated_synced_last[property]:
+		#node.rset_unreliable(property, value)
+		rpc_unreliable("interp_set", property, value)
+		interpolated_synced_last[property] = value
+
+remote func interp_set(property, value):
+	var n = get_parent()
+	interpolated_synced_target[property] = value
 
 func get_sync_state():
 	var state = {}
@@ -96,6 +116,10 @@ func get_sync_state():
 		var value = get_parent().get(property)
 		state[property] = value
 		unreliable_synced_last[property] = value
+	for property in interpolated_synced:
+		var value = get_parent().get(property)
+		state[property] = value
+		interpolated_synced_last[property] = value
 	
 	if get_network_master() > 0:
 		state['__network_master_id'] = get_network_master()
