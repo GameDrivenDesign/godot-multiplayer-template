@@ -30,7 +30,7 @@ func _process(dt):
 		spawn_projectile(position, direction)
 
 func spawn_projectile(position, direction):
-	var projectile = preload("res://example1/physics_projectile/PhysicsProjectile.tscn").instance()
+	var projectile = preload("res://examples/example1/physics_projectile/PhysicsProjectile.tscn").instance()
 	projectile.set_network_master(1)
 	projectile.position = position
 	projectile.direction = direction
@@ -38,7 +38,7 @@ func spawn_projectile(position, direction):
 	get_parent().add_child(projectile)
 
 func spawn_box(position):
-	var box = preload("res://example1/Block.tscn").instance()
+	var box = preload("res://examples/example1/Block.tscn").instance()
 	box.position = position
 	get_parent().add_child(box)
 

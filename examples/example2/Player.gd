@@ -32,7 +32,7 @@ func _process(delta):
 		spawn_projectile(position, direction)
 
 func spawn_projectile(spawn_position, direction):
-	var ProjectileClass = preload("res://example2/Projectile.tscn")
+	var ProjectileClass = preload("res://examples/example2/Projectile.tscn")
 	var projectile = ProjectileClass.instance()
 	# Make sure the projectile doesn't spawn on top of us
 	projectile.position = spawn_position + direction * 30
