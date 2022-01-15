@@ -22,11 +22,11 @@ jobs:
         publish_dir: ./output
     - uses: appleboy/scp-action@master
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        host: gamedev.paulmethfessel.com
+        username: deploy
         key: ${{ secrets.KEY }}
         source: ./output/*
-        target: /home/${{ secrets.USERNAME }}/godot-servers/${{ github.event.repository.name }}
+        target: /home/deploy/godot-servers/${{ github.event.repository.name }}
         strip_components: 1
 
   deploy_server:
@@ -41,30 +41,30 @@ jobs:
         output-filename: server
     - uses: appleboy/ssh-action@master
       env:
-        USER: ${{ secrets.USERNAME }}
+        USER: deploy
         REPO: ${{ github.event.repository.name }}
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        host: gamedev.paulmethfessel.com
+        username: deploy
         envs: USER,REPO
         key: ${{ secrets.KEY }}
         script: |
           mkdir -p "/home/$USER/godot-servers/$REPO"
     - uses: appleboy/scp-action@master
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        host: gamedev.paulmethfessel.com
+        username: deploy
         key: ${{ secrets.KEY }}
         source: ./output/*
-        target: /home/${{ secrets.USERNAME }}/godot-servers/${{ github.event.repository.name }}
+        target: /home/deploy/godot-servers/${{ github.event.repository.name }}
         strip_components: 1
     - uses: appleboy/ssh-action@master
       env:
-        USER: ${{ secrets.USERNAME }}
+        USER: deploy
         REPO: ${{ github.event.repository.name }}
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        host: gamedev.paulmethfessel.com
+        username: deploy
         key: ${{ secrets.KEY }}
         envs: USER,REPO
         script: |
