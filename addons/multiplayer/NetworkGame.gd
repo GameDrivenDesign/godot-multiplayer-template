@@ -22,9 +22,9 @@ func _ready():
 	if auto_connect:
 		connect_via_cli()
 
-func _process(delta):
-	if get_tree().network_peer:
-		get_tree().network_peer.poll()
+#func _process(delta):
+#	if get_tree().network_peer:
+#		get_tree().network_peer.poll()
 
 func connect_via_cli():
 	if OS.has_feature("editor"):
