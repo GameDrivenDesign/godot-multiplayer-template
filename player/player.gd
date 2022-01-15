@@ -12,6 +12,3 @@ func _network_ready(is_source):
 func set_color(c: Color):
 	color = c
 	$token.color = c
-
-
-
