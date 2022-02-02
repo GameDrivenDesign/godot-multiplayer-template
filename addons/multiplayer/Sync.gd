@@ -32,11 +32,9 @@ func _ready():
 		node._network_ready(not is_synced_copy)
 	
 	for property in synced:
-		node.rset_config(property, MultiplayerAPI.RPC_MODE_REMOTE)
-		synced_last[property] = null
+		_add_prop(node, synced_last, property)
 	for property in unreliable_synced:
-		node.rset_config(property, MultiplayerAPI.RPC_MODE_REMOTE)
-		unreliable_synced_last[property] = null
+		_add_prop(node, unreliable_synced_last, property)
 	for property in interpolated_synced:
 		node.rset_config(property, MultiplayerAPI.RPC_MODE_REMOTE)
 		interpolated_synced_last[property] = null
@@ -51,6 +49,22 @@ func _ready():
 		node.set_process(is_master)
 		node.set_process_input(is_master)
 		node.set_physics_process(is_master)
+
+func _add_prop(node, array, property):
+	   node.rset_config(property, MultiplayerAPI.RPC_MODE_REMOTE)
+	   array[property] = null
+
+func add_property(array_name, property):
+	   var last = null
+	   match array_name:
+			   'unreliable_synced':
+					   last = unreliable_synced_last
+					   unreliable_synced = unreliable_synced + [property] as PoolStringArray
+			   'synced':
+					   last = synced_last
+					   synced = synced + [property] as PoolStringArray
+	   _add_prop(get_parent(), last, property)
+	   set_process(true)
 
 func remove():
 	var node = get_parent()
@@ -82,13 +96,13 @@ func _process(delta):
 	
 	for property in synced:
 		var value = node.get(property)
-		if value != synced_last[property]:
+		if not synced_last.has(property) or value != synced_last[property]:
 			node.rset(property, value)
 			synced_last[property] = value
 	
 	for property in unreliable_synced:
 		var value = node.get(property)
-		if value != unreliable_synced_last[property]:
+		if not unreliable_synced_last.has(property) or value != unreliable_synced_last[property]:
 			node.rset_unreliable(property, value)
 			unreliable_synced_last[property] = value
 	
