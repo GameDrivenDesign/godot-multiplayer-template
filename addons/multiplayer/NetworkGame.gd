@@ -144,9 +144,11 @@ func server_spawn_new_player(id: int):
 
 remote func client_remove_player(player_id: int):
 	var container = get_node(get_players_container())
-	var player = container.get_node(String(player_id))
-	container.remove_child(player)
-	return player
+	for player in container.get_children():
+		if player.name.begins_with("player_" + String(player_id)):
+			container.remove_child(player)
+			return player
+	print("The player could not be found")
 
 func get_sync(object: Node):
 	var s = object.get_node_or_null("Sync")
